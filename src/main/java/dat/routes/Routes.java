@@ -1,6 +1,7 @@
 package dat.routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.enums.Roles;
 import io.javalin.apibuilder.EndpointGroup;
@@ -10,11 +11,12 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 public class Routes
 {
     private final SecurityController securityController;
+    private final GameController gameController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
-    public Routes(SecurityController securityController)
+    public Routes(SecurityController securityController, GameController gameController)
     {
-
+        this.gameController = gameController;
         this.securityController = securityController;
     }
 
@@ -23,6 +25,7 @@ public class Routes
         return () -> {
             path("trips", tripRoutes());
             path("auth", authRoutes());
+            get("/boardgames", gameController::getAllBoardGames);
         };
     }
 
