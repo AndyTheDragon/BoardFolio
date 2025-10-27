@@ -28,6 +28,5 @@ public class Game
     private int releaseYear;
     private List<String> languages;
     private Genre genre;
-
-
+    // New
 }
