@@ -1,6 +1,7 @@
 package dat.config;
 
 import dat.entities.*;
+import dat.enums.Languages;
 import dat.enums.Roles;
 import dat.utils.PropertyReader;
 import jakarta.persistence.EntityManagerFactory;
@@ -44,6 +45,8 @@ public class HibernateConfig
         configuration.addAnnotatedClass(Game.class);
         configuration.addAnnotatedClass(UserAccount.class);
         configuration.addAnnotatedClass(Roles.class);
+        configuration.addAnnotatedClass(Collection.class);
+        configuration.addAnnotatedClass(Languages.class);
     }
 
     private static EntityManagerFactory createEMF(boolean forTest) {

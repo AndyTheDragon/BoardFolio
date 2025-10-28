@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,9 @@ public class UserAccount
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
+
+    @OneToMany
+    private List<Collection> collections = new ArrayList<>();
 
     public UserAccount(String userName, String userPass)
     {
