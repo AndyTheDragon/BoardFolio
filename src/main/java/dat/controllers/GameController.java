@@ -42,7 +42,7 @@ public class GameController
                     .build();
 
             Game saved = genericDAO.create(game);
-            context.status(200).json(game);
+            context.status(200).json(saved);
         } catch (DaoException daoException)
         {
             logger.error(daoException.getMessage());
