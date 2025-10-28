@@ -14,7 +14,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Collection {
+public class Collection
+{
 
     @Id
     private Integer listID;
@@ -27,11 +28,20 @@ public class Collection {
     @ManyToOne
     private UserAccount user;
 
-
-    public Game addGame(Integer gameId, Integer listID){
-        return null;
+    public Collection(String name)
+    {
+        this.name = name;
     }
-    public Game removeGame(Integer gameId, Integer listID){
-        return null;
+
+    public void addGame(Game game)
+    {
+        this.games.add(game);
+        game.addToCollection(this);
+
+    }
+
+    public void removeGame(Game game)
+    {
+        this.games.remove(game);
     }
 }
