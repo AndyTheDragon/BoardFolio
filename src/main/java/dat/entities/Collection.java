@@ -18,6 +18,7 @@ public class Collection
 {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer listID;
 
     private String name;

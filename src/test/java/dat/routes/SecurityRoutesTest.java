@@ -33,9 +33,8 @@ class SecurityRoutesTest
 
     @BeforeAll
     static void setUpAll() {
-        TripController tripController = new TripController(emf);
         SecurityController securityController = new SecurityController(emf);
-        Routes routes = new Routes(tripController, securityController);
+        Routes routes = new Routes(securityController);
         ApplicationConfig
                 .getInstance()
                 .initiateServer()
