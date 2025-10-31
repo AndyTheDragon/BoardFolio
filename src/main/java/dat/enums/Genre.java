@@ -2,10 +2,16 @@ package dat.enums;
 
 public enum Genre
 {
-    BEACH,
-    CITY,
-    FOREST,
-    LAKE,
-    SEA,
-    SNOW
+    STRATEGY,
+    FAMILY,
+    TILE_PLACEMENT,
+    COOPERATIVE,
+    ABSTRACT,
+    CARD,
+    DECKBUILDING,
+    PARTY,
+    ADVENTURE,
+    ENGINE_BUILDING,
+    MYSTERY,
+    HORROR
 }
