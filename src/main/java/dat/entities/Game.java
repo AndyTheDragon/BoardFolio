@@ -1,6 +1,7 @@
 package dat.entities;
 
 import dat.enums.Genre;
+import dat.enums.Languages;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 @Builder
 public class Game
@@ -18,6 +20,7 @@ public class Game
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameId;
+
     private String title;
     private String description;
     private int minNoOfPlayers;
@@ -25,8 +28,65 @@ public class Game
     private int minAge;
     private int maxAge;
     private int releaseYear;
-    private List<String> languages;
-    private Genre genre;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    @ToString.Exclude
+    private UserAccount owner;
 
 
+    @ManyToMany(mappedBy = "customList")
+    @ToString.Exclude
+    private Set<GameList> gameLists = new HashSet<>();
+
+    @ElementCollection(targetClass = Languages.class)
+    @Enumerated(EnumType.STRING)
+    private List<Languages> languages;
+
+    @ElementCollection(targetClass = Genre.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Genre> genres = new HashSet<>();
+
+    public Game(String title,
+                String description,
+                int minNoOfPlayers,
+                int maxNoOfPlayers,
+                int minAge,
+                int maxAge,
+                int releaseYear,
+                List<Languages> languages,
+                Set<GameList> GameLists, Set<Genre> genres)
+    {
+        this.title = title;
+        this.description = description;
+        this.minNoOfPlayers = minNoOfPlayers;
+        this.maxNoOfPlayers = maxNoOfPlayers;
+        this.minAge = minAge;
+        this.maxAge = maxAge;
+        this.releaseYear = releaseYear;
+        this.languages = languages;
+        this.genres = genres;
+    }
+
+    public void setOwner(UserAccount user) {
+        if (this.owner != null) {
+            this.owner.getMyCollection().remove(this);
+        }
+        this.owner = user;
+        if (user != null && !user.getMyCollection().contains(this)) {
+            user.getMyCollection().add(this);
+        }
+    }
+
+    public void addToCollection(GameList gameList) {
+        if (gameList == null) return;
+        gameLists.add(gameList);
+        gameList.getCustomList().add(this);
+    }
+
+    public void removeFromCollection(GameList gameList) {
+        if (gameList == null) return;
+        gameLists.remove(gameList);
+        gameList.getCustomList().remove(this);
+    }
 }

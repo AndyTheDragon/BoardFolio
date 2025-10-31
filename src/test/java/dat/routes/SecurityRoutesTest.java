@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityRoutesTest
 {
-
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(SecurityRoutesTest.class.getName());
     private final String TEST_USER = "testuser";
@@ -33,9 +32,8 @@ class SecurityRoutesTest
 
     @BeforeAll
     static void setUpAll() {
-        TripController tripController = new TripController(emf);
         SecurityController securityController = new SecurityController(emf);
-        Routes routes = new Routes(tripController, securityController);
+        Routes routes = new Routes(securityController);
         ApplicationConfig
                 .getInstance()
                 .initiateServer()
