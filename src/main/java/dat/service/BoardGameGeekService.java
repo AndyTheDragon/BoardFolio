@@ -20,6 +20,7 @@ public class BoardGameGeekService
 {
     private static final HttpClient client = HttpClient.newHttpClient();
     private static final XmlMapper xmlMapper = new XmlMapper();
+    static String BGG_API_KEY = System.getenv("BGG_API_KEY");
     private static final String bggUri = "https://boardgamegeek.com/xmlapi/collection/eekspider";  //TODO this is a temporary URI for getting mock-data
 
     public static List<GameDTO> getBGGGames()
