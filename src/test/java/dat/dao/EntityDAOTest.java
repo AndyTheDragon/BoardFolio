@@ -1,135 +1,61 @@
-package dat.dao;
-
-import dat.config.HibernateConfig;
-import dat.entities.Collection;
-import dat.entities.Game;
-import dat.entities.UserAccount;
-import dat.enums.Genre;
-import dat.enums.Languages;
-import dat.enums.Roles;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class EntityDAOTest
-{
-    private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private static final GenericDAO genericDAO = new GenericDAO(emf);
+class EntityDAOTest {
+    // ... (setup of EntityManagerFactory and DAO)
     private Game testGame;
-
     @BeforeEach
-    void setUp()
-    {
-        try (EntityManager em = emf.createEntityManager())
-        {
+    void setUp() {
+        try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
             // Clean up existing data
             em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
             em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
-            em.createNativeQuery("DELETE FROM game_collection").executeUpdate();
             em.createNativeQuery("DELETE FROM collection_game").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_collection").executeUpdate();
             em.createNativeQuery("DELETE FROM game").executeUpdate();
             em.createNativeQuery("DELETE FROM collection").executeUpdate();
+            em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
             em.createNativeQuery("DELETE FROM useraccount").executeUpdate();
-
-            try {
-                em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
-            } catch (Exception ignored) {}
-
-            // Create test game
+            em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
+            // Create test data
             String testTitle = "Test Title";
-            String testDescription = "Test decription";
-            int testMinNoOfPlayers = 2;
-            int testMaxNoOfPlayers = 4;
-            int testMinAge = 10;
-            int testMaxAge = 99;
-            int testReleaseYear = 2000;
-            Languages lang1 = Languages.ENGLISH;
-            Languages lang2 = Languages.DANISH;
-
+            String testDescription = "Test description";
+            // ... (other primitive fields)
             List<Languages> testLanguages = new ArrayList<>();
-            testLanguages.add(lang1);
-            testLanguages.add(lang2);
-
-            Set<Genre> testGenre = new HashSet<>();
-            Genre genre1 = Genre.ADVENTURE;
-            testGenre.add(genre1);
-
+            testLanguages.add(Languages.ENGLISH);
+            testLanguages.add(Languages.DANISH);
+            Set<Genre> testGenres = new HashSet<>();
+            testGenres.add(Genre.ADVENTURE);
             Set<Collection> testCollections = new HashSet<>();
             Collection testCollection = new Collection("TestCollectionName");
             testCollections.add(testCollection);
-
-            testGame = new Game(testTitle, testDescription, testMinNoOfPlayers, testMaxNoOfPlayers, testMinAge,
-                                testMaxAge, testReleaseYear, testLanguages, testCollections, testGenre);
-
+            testGame = new Game(testTitle, testDescription, 2, 4, 10, 99, 2000,
+                    testLanguages, testCollections, testGenres);
             testCollection.addGame(testGame);
-
             em.persist(testCollection);
             em.persist(testGame);
-
             em.getTransaction().commit();
         }
     }
-
     @Test
-    void getGame()
-    {
-        // Arrange
-        // Act
+    void getGame() {
         Game result = genericDAO.getById(Game.class, 1);
-
-        // Assert
         assertNotNull(result);
         assertEquals(testGame.getTitle(), result.getTitle());
         assertEquals(testGame.getMinNoOfPlayers(), result.getMinNoOfPlayers());
     }
-
     @Test
-    void creatGame()
-    {
-        // Arrange
-        // Create test game
-        String testTitle2 = "Test Title 2";
-        String testDescription2 = "Test decription 2";
-        int testMinNoOfPlayers2 = 2;
-        int testMaxNoOfPlayers2 = 4;
-        int testMinAge2 = 10;
-        int testMaxAge2 = 99;
-        int testReleaseYear2 = 2000;
-        Languages lang1 = Languages.ENGLISH;
-        Languages lang2 = Languages.DANISH;
-
-        List<Languages> testLanguages2 = new ArrayList<>();
-        testLanguages2.add(lang1);
-        testLanguages2.add(lang2);
-
-        Set<Genre> testGenre2 = new HashSet<>();
-        Genre genre1 = Genre.ADVENTURE;
-        testGenre2.add(genre1);
-
-        Set<Collection> testCollections2 = new HashSet<>();
-        Collection testCollection2 = new Collection("TestCollectionName 2");
-
-        Game testGame2 = new Game(testTitle2, testDescription2, testMinNoOfPlayers2, testMaxNoOfPlayers2, testMinAge2,
-                                  testMaxAge2, testReleaseYear2, testLanguages2, testCollections2, testGenre2);
-        // Act
+    void createGame() {
+        // Create a game without associating it to a collection (like adding a new library game)
+        List<Languages> langs = new ArrayList<>();
+        langs.add(Languages.ENGLISH);
+        langs.add(Languages.DANISH);
+        Set<Genre> genres = new HashSet<>();
+        genres.add(Genre.ADVENTURE);
+        Game testGame2 = new Game("Test Title 2", "Test description 2", 2, 4, 10, 99, 2000,
+                langs, new HashSet<>(), genres);
         Game result = genericDAO.create(testGame2);
-
-        // Assert
         assertNotNull(result);
         assertEquals(2, result.getGameId());
         assertEquals(testGame2.getTitle(), result.getTitle());
-        assertEquals(testGame2.getLanguages().size(),result.getLanguages().size());
-        assertTrue(testGame2.getGenres().contains(Genre.ADVENTURE));
+        assertEquals(testGame2.getLanguages().size(), result.getLanguages().size());
+        assertTrue(result.getGenres().contains(Genre.ADVENTURE));
     }
 }
