@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 public class Game
 {
@@ -29,12 +30,19 @@ public class Game
     private int maxAge;
     private int releaseYear;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    @ToString.Exclude
+    private UserAccount owner;
+
+
+    @ManyToMany(mappedBy = "customList")
+    @ToString.Exclude
+    private Set<GameList> gameLists = new HashSet<>();
+
     @ElementCollection(targetClass = Languages.class)
     @Enumerated(EnumType.STRING)
     private List<Languages> languages;
-
-    @ManyToMany
-    private Set<Collection> collections = new HashSet<>();
 
     @ElementCollection(targetClass = Genre.class)
     @Enumerated(EnumType.STRING)
@@ -48,7 +56,7 @@ public class Game
                 int maxAge,
                 int releaseYear,
                 List<Languages> languages,
-                Set<Collection> collections, Set<Genre> genres)
+                Set<GameList> GameLists, Set<Genre> genres)
     {
         this.title = title;
         this.description = description;
@@ -61,7 +69,25 @@ public class Game
         this.genres = genres;
     }
 
-    public void addToCollection(Collection collection){
-        this.collections.add(collection);
+    public void setOwner(UserAccount user) {
+        if (this.owner != null) {
+            this.owner.getMyCollection().remove(this);
+        }
+        this.owner = user;
+        if (user != null && !user.getMyCollection().contains(this)) {
+            user.getMyCollection().add(this);
+        }
+    }
+
+    public void addToCollection(GameList gameList) {
+        if (gameList == null) return;
+        gameLists.add(gameList);
+        gameList.getCustomList().add(this);
+    }
+
+    public void removeFromCollection(GameList gameList) {
+        if (gameList == null) return;
+        gameLists.remove(gameList);
+        gameList.getCustomList().remove(this);
     }
 }

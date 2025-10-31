@@ -1,12 +1,10 @@
 package dat.dao;
 
 import dat.config.HibernateConfig;
-import dat.entities.Collection;
+import dat.entities.GameList;
 import dat.entities.Game;
-import dat.entities.UserAccount;
 import dat.enums.Genre;
 import dat.enums.Languages;
-import dat.enums.Roles;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,16 +63,16 @@ class EntityDAOTest
             Genre genre1 = Genre.ADVENTURE;
             testGenre.add(genre1);
 
-            Set<Collection> testCollections = new HashSet<>();
-            Collection testCollection = new Collection("TestCollectionName");
-            testCollections.add(testCollection);
+            Set<GameList> testGameLists = new HashSet<>();
+            GameList testGameList = new GameList("TestCollectionName");
+            testGameLists.add(testGameList);
 
             testGame = new Game(testTitle, testDescription, testMinNoOfPlayers, testMaxNoOfPlayers, testMinAge,
-                                testMaxAge, testReleaseYear, testLanguages, testCollections, testGenre);
+                                testMaxAge, testReleaseYear, testLanguages, testGameLists, testGenre);
 
-            testCollection.addGame(testGame);
+            testGameList.addGame(testGame);
 
-            em.persist(testCollection);
+            em.persist(testGameList);
             em.persist(testGame);
 
             em.getTransaction().commit();
@@ -117,8 +115,8 @@ class EntityDAOTest
         Genre genre1 = Genre.ADVENTURE;
         testGenre2.add(genre1);
 
-        Set<Collection> testCollections2 = new HashSet<>();
-        Collection testCollection2 = new Collection("TestCollectionName 2");
+        Set<GameList> testCollections2 = new HashSet<>();
+        GameList testGameList2 = new GameList("TestCollectionName 2");
 
         Game testGame2 = new Game(testTitle2, testDescription2, testMinNoOfPlayers2, testMaxNoOfPlayers2, testMinAge2,
                                   testMaxAge2, testReleaseYear2, testLanguages2, testCollections2, testGenre2);
