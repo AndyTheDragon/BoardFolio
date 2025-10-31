@@ -90,6 +90,12 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version> <!-- or the latest version -->
         </dependency>
+        <!--        Jackson for XML handling-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
         <!--  Security  -->
         <dependency>
@@ -192,7 +198,8 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <outputFile>${project.build.directory}/app.jar</outputFile> <!-- Directly specifies app.jar as the output file -->
+                    <outputFile>${project.build.directory}/app.jar
+                    </outputFile> <!-- Directly specifies app.jar as the output file -->
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
