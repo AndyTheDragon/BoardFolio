@@ -70,17 +70,52 @@ public class BoardGameGeekService
 
         try
         {
-            // Adjust path to wherever your XML file is
-            File xmlFile = new File("../testdata/bgg_test_data.xml");
+            File xmlFile = new File("src/main/java/dat/service/testdata/bgg_test_data.xml");
+
+            // Read the XML as string and fix unescaped &
+            String xml = java.nio.file.Files.readString(xmlFile.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+            xml = xml.replaceAll("&(?!amp;)", "&amp;"); // fix unescaped &
 
             // Parse XML into a JsonNode tree
-            JsonNode rootNode = xmlMapper.readTree(xmlFile);
+            JsonNode rootNode = xmlMapper.readTree(xml);
 
-            // Loop over <item> nodes and convert each to GameDTO
-            for (JsonNode itemNode : rootNode.path("item"))
+            // Get the <item> array
+            JsonNode itemArray = rootNode.path("item");
+
+            if (itemArray.isArray())
             {
-                GameDTO game = xmlMapper.treeToValue(itemNode, GameDTO.class);
-                gameDTOs.add(game);
+                for (JsonNode itemNode : itemArray)
+                {
+                    GameDTO game = new GameDTO();
+
+                    // Extract title from <name>
+                    JsonNode nameNode = itemNode.path("name");
+                    if (!nameNode.isMissingNode())
+                    {
+                        game.setTitle(nameNode.path("").asText("")); // actual text is under the empty key
+                    }
+
+                    // Extract min/max players from <stats>
+                    JsonNode statsNode = itemNode.path("stats");
+                    if (!statsNode.isMissingNode())
+                    {
+                        game.setMinNoOfPlayers(statsNode.path("minplayers").asInt(0));
+                        game.setMaxNoOfPlayers(statsNode.path("maxplayers").asInt(0));
+                    }
+
+                    // Extract release year
+                    game.setReleaseYear(itemNode.path("yearpublished").asInt(0));
+
+                    // We don’t have description, languages, or genre in XML yet
+                    game.setDescription("");  // leave empty
+                    game.setLanguages(List.of()); // empty list
+                    game.setGenre(null); // leave null
+
+                    gameDTOs.add(game);
+                }
+            } else
+            {
+                System.out.println("No <item> elements found in XML!");
             }
 
         } catch (Exception e)
@@ -90,4 +125,5 @@ public class BoardGameGeekService
 
         return gameDTOs;
     }
+
 }
