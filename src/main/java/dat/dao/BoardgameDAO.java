@@ -23,8 +23,8 @@ public class BoardgameDAO
     {
         if (page < 0 || pageSize < 1)
         {
-            logger.error("Page and pageSize must be greater than 0. Received page: {}, pageSize: {}", page, pageSize);
-            throw new IllegalArgumentException("Page must be non-negative and pageSize must be greater than 0");
+            logger.error("Page must be 0 or greater, and pageSize must be greater than 0. Received page: {}, pageSize: {}", page, pageSize);
+            throw new IllegalArgumentException("Page must be 0 or greater, and pageSize must be greater than 0");
         }
         int offset = page * pageSize;
         try (EntityManager em = emf.createEntityManager())
