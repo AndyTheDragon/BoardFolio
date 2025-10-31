@@ -25,7 +25,20 @@ public class Routes
         return () -> {
             path("trips", tripRoutes());
             path("auth", authRoutes());
-            get("/boardgames", gameController::getAllBoardGames);
+            path("boardgames", boardgameRoutes());
+        };
+    }
+
+    private EndpointGroup boardgameRoutes()
+    {
+        return () -> {
+            get(gameController::getAllBoardGames);
+            get("/populate", gameController::populateBoardGames);
+            /*get("/{id}", boardgameController::getBoardGameById);
+            post(boardgameController::createBoardGame);
+            put("/{id}", boardgameController::updateBoardGame);
+            delete("/{id}", boardgameController::deleteBoardGame);
+            post("/populate", boardgameController::populateBoardGames);*/
         };
     }
 
