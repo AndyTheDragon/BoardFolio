@@ -22,7 +22,7 @@ public class Main
         Routes routes = new Routes(securityController);
 
         //TODO fjern senere, tester om data bliver hentet
-        List<GameDTO> gameDTOS = BoardGameGeekService.getBGGGames();
+        List<GameDTO> gameDTOS = BoardGameGeekService.getBGGGamesFromFile();
         System.out.println(gameDTOS);
 
         ApplicationConfig
