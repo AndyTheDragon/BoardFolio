@@ -1,5 +1,6 @@
 package dat.dto;
 
+import dat.entities.Game;
 import dat.enums.Genre;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,22 +31,23 @@ public class GameDTO
     private List<String> languages;
     private Genre genre;
 
-    public GameDTO(String title, String description, int minNoOfPlayers, int maxNoOfPlayers, int minAge, int maxAge, int releaseYear, List<String> languages, Genre genre)
+    public GameDTO(Game game)
     {
-        this.title = title;
-        this.description = description;
-        this.minNoOfPlayers = minNoOfPlayers;
-        this.maxNoOfPlayers = maxNoOfPlayers;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
-        this.releaseYear = releaseYear;
-        this.languages = languages;
-        this.genre = genre;
+        this.gameId = game.getGameId();
+        this.title = game.getTitle();
+        this.description = game.getDescription();
+        this.minNoOfPlayers = game.getMinNoOfPlayers();
+        this.maxNoOfPlayers = game.getMaxNoOfPlayers();
+        this.minAge = game.getMinAge();
+        this.maxAge = game.getMaxAge();
+        this.releaseYear = game.getReleaseYear();
+        this.languages = game.getLanguages();
+        this.genre = game.getGenre();
     }
 
-    public void titleDTO(String title)
+    public void titleDTO(Game game)
     {
-        this.title = title;
+        this.title = game.getTitle();
     }
 
 

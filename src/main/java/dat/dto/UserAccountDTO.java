@@ -39,6 +39,13 @@ public class UserAccountDTO
         this.roles = roleEntityList;
     }
 
+    public UserAccountDTO(UserAccountDTO userAccountDTO)
+    {
+        this.username = userAccountDTO.getUsername();
+        this.password = userAccountDTO.getPassword();
+        this.roles = userAccountDTO.getRoles();
+    }
+
     public Set<String> getRolesAsString()
     {
         return roles.stream().map(Roles::toString).collect(Collectors.toSet());
