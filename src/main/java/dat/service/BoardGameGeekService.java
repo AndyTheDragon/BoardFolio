@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import dat.dto.GameDTO;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -30,7 +31,7 @@ public class BoardGameGeekService
         {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(bggUri))
-                    .header("User-Agent", "Mozilla/5.0") //TODO: should use API key, mimic browser
+                    .header("Authorization", "Bearer YOUR_TOKEN_HERE") //TODO insert API key here as a secret variable
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -55,6 +56,33 @@ public class BoardGameGeekService
             {
                 System.out.println("GET request failed. Status code: " + response.statusCode());
             }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return gameDTOs;
+    }
+
+    public static List<GameDTO> getBGGGamesFromFile()
+    {
+        List<GameDTO> gameDTOs = new ArrayList<>();
+
+        try
+        {
+            // Adjust path to wherever your XML file is
+            File xmlFile = new File("../testdata/bgg_test_data.xml");
+
+            // Parse XML into a JsonNode tree
+            JsonNode rootNode = xmlMapper.readTree(xmlFile);
+
+            // Loop over <item> nodes and convert each to GameDTO
+            for (JsonNode itemNode : rootNode.path("item"))
+            {
+                GameDTO game = xmlMapper.treeToValue(itemNode, GameDTO.class);
+                gameDTOs.add(game);
+            }
+
         } catch (Exception e)
         {
             e.printStackTrace();
