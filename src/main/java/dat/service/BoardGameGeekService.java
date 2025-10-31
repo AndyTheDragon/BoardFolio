@@ -26,36 +26,70 @@ public class BoardGameGeekService
     {
         List<GameDTO> gameDTOs = new ArrayList<>();
 
-        //TODO fetch data from BGG
         try
         {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(bggUri))
-                    .header("Authorization", "Bearer YOUR_TOKEN_HERE") //TODO insert API key here as a secret variable
+                    .header("Authorization", "Bearer YOUR_TOKEN_HERE") // TODO: insert API key here as a secret variable
                     .GET()
                     .build();
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200)
             {
-                //TODO handle data from BGG, 200 we got the data
                 String xml = response.body();
 
-                // Parse XML to a JsonNode tree
+                // Preprocess XML to fix unescaped &
+                xml = xml.replaceAll("&(?!amp;)", "&amp;");
+
+                // Parse XML into a JsonNode tree
                 JsonNode rootNode = xmlMapper.readTree(xml);
 
-                // Loop over all <item> nodes
-                for (JsonNode itemNode : rootNode.path("item"))
-                {
-                    GameDTO game = xmlMapper.treeToValue(itemNode, GameDTO.class);
-                    gameDTOs.add(game);
-                }
+                // Get the <item> array
+                JsonNode itemArray = rootNode.path("item");
 
+                if (itemArray.isArray())
+                {
+                    for (JsonNode itemNode : itemArray)
+                    {
+                        GameDTO game = new GameDTO();
+
+                        // Extract title from <name>
+                        JsonNode nameNode = itemNode.path("name");
+                        if (!nameNode.isMissingNode())
+                        {
+                            game.setTitle(nameNode.path("").asText(""));
+                        }
+
+                        // Extract min/max players from <stats>
+                        JsonNode statsNode = itemNode.path("stats");
+                        if (!statsNode.isMissingNode())
+                        {
+                            game.setMinNoOfPlayers(statsNode.path("minplayers").asInt(0));
+                            game.setMaxNoOfPlayers(statsNode.path("maxplayers").asInt(0));
+                        }
+
+                        // Extract release year
+                        game.setReleaseYear(itemNode.path("yearpublished").asInt(0));
+
+                        // Set empty/default values for missing fields
+                        game.setDescription("");
+                        game.setLanguages(List.of());
+                        game.setGenre(null);
+
+                        gameDTOs.add(game);
+                    }
+                } else
+                {
+                    System.out.println("No <item> elements found in XML!");
+                }
 
             } else
             {
                 System.out.println("GET request failed. Status code: " + response.statusCode());
             }
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -63,6 +97,7 @@ public class BoardGameGeekService
 
         return gameDTOs;
     }
+
 
     public static List<GameDTO> getBGGGamesFromFile()
     {
