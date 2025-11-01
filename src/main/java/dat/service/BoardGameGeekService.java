@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // BGG = Board Game Geek
@@ -20,8 +21,11 @@ public class BoardGameGeekService
 {
     private static final HttpClient client = HttpClient.newHttpClient();
     private static final XmlMapper xmlMapper = new XmlMapper();
-    static String BGG_API_KEY = System.getenv("BGG_API_KEY");
-    private static final String bggUri = "https://boardgamegeek.com/xmlapi/collection/eekspider";  //TODO this is a temporary URI for getting mock-data
+    static String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
+    private static String bggUri = "https://boardgamegeek.com/xmlapi2/thing?id=";
+    private static Long maxId = 457416L;
+    private static int batchSize = 100;
+    private int rateLimit = 5000;
 
     public static List<GameDTO> getBGGGames()
     {
@@ -29,9 +33,14 @@ public class BoardGameGeekService
 
         try
         {
+            int startId = 1;
+            while (startId < 200)
+            {
+
+            }
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(bggUri))
-                    .header("Authorization", "Bearer YOUR_TOKEN_HERE") // TODO: insert API key here as a secret variable
+                    .header("Authorization", "Bearer " + BGG_API_KEY) //TODO insert API key here as a secret variable
                     .GET()
                     .build();
 
@@ -97,6 +106,32 @@ public class BoardGameGeekService
         }
 
         return gameDTOs;
+    }
+
+    // builds a list of URIs, each string has a set amount of Ids based on batchSize
+    // number of strings is based on maxId
+    private static List<String> buildAllBGGUris()
+    {
+        List<String> bggUris = new ArrayList<>();
+
+        for (long start = 1; start <= maxId; start += batchSize)
+        {
+            long end = Math.min(start + batchSize - 1, maxId); // last ID in this batch
+            StringBuilder uri = new StringBuilder(bggUri);
+
+            for (long i = start; i <= end; i++)
+            {
+                uri.append(i);
+                if (i < end) // no trailing comma
+                {
+                    uri.append(",");
+                }
+            }
+
+            bggUris.add(uri.toString());
+        }
+
+        return bggUris;
     }
 
 
