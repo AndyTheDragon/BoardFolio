@@ -24,7 +24,9 @@ public class BoardGameGeekService
     private static final String BGG_URI = "https://boardgamegeek.com/xmlapi2/thing?id=";
     private static final String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
     // The max number of IDs from BGG
-    private static final Long MAX_ID = 457416L;
+    //TODO 457416 is the actual MAX_ID, 100 is for testing!
+//    private static final Long MAX_ID = 457416L;
+    private static final Long MAX_ID = 100L;
     // The max number of games per request
     private static final int BATCH_SIZE = 20;
     // BGGs min rate limit per request
