@@ -37,7 +37,6 @@ public class BoardGameGeekService
         List<GameDTO> allGames = new ArrayList<>();
 
         long totalRequests = uris.size();
-        long startTime = System.currentTimeMillis();
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
