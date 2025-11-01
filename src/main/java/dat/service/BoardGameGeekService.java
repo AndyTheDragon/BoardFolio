@@ -21,22 +21,30 @@ public class BoardGameGeekService
 {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final XmlMapper XML_MAPPER = new XmlMapper();
-    private static final String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
     private static final String BGG_URI = "https://boardgamegeek.com/xmlapi2/thing?id=";
+    private static final String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
+    // The max number of IDs from BGG
     private static final Long MAX_ID = 457416L;
-    private static final int BATCH_SIZE = 100;
-    private static final int RATE_LIMIT = 5000;
+    // The max number of games per request
+    private static final int BATCH_SIZE = 20;
+    // BGGs min rate limit per request
+    private static final int RATE_LIMIT_MS = 5000;
 
-    // This method parses XML for multiple <item> elements
-    public static void fetchBGGGames()
+    // Public method to start fetching all games
+    public static List<GameDTO> fetchAllGames()
     {
-        List<String> uris = buildAllBGGUris(); // your existing batch URIs
+        List<String> uris = buildAllBGGUris();
         List<GameDTO> allGames = new ArrayList<>();
 
-        ExecutorService executor = Executors.newFixedThreadPool(4); // parallel processing threads
+        long totalRequests = uris.size();
+        long startTime = System.currentTimeMillis();
 
-        for (String uriStr : uris.subList(0, 2))
-        { // testing first 2 batches
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+
+        for (int i = 0; i < uris.size(); i++)
+        {
+            String uriStr = uris.get(i);
             try
             {
                 HttpRequest request = HttpRequest.newBuilder()
@@ -49,57 +57,68 @@ public class BoardGameGeekService
 
                 if (response.statusCode() == 200)
                 {
-                    String xml = response.body();
-                    // escapes all & signs, it's an XML / Jackson thing
-                    xml = xml.replaceAll("&(?!amp;)", "&amp;");
+                    String xml = response.body().replaceAll("&(?!amp;)", "&amp;");
 
-                    // Submit processing to executor
-                    String finalXml = xml;
-                    Future<List<GameDTO>> future = executor.submit(() -> processXML(finalXml));
+                    Future<List<GameDTO>> future = executor.submit(() -> parseBatchOfGames(xml));
 
-                    // Collect results (blocks until parsing is done)
-                    allGames.addAll(future.get());
+                    allGames.addAll(future.get()); // wait for batch parsing
+
+                    // Progress info
+                    long requestsDone = i + 1;
+                    long requestsLeft = totalRequests - requestsDone;
+
+                    long estimatedRemainingMs = requestsLeft * RATE_LIMIT_MS;
+
+                    // convert milliseconds to hours, minutes, seconds
+                    long secondsTotal = estimatedRemainingMs / 1000;
+                    long hours = secondsTotal / 3600;
+                    long minutes = (secondsTotal % 3600) / 60;
+                    long seconds = secondsTotal % 60;
+
+                    // overwrite the same line using \r and flush the output
+                    System.out.printf(
+                            "\rProcessed batch %d/%d, total games fetched: %d, estimated time remaining: %dh %dm %ds",
+                            requestsDone, totalRequests, allGames.size(), hours, minutes, seconds
+                    );
+                    System.out.flush();
 
                 } else
                 {
                     System.out.println("GET failed: " + response.statusCode());
                 }
 
-                // Respect BGG rate limit
-                Thread.sleep(5000);
+                Thread.sleep(RATE_LIMIT_MS);
 
             } catch (Exception e)
             {
-                System.out.println("Error while fetching games for BoardGameGeek!");
+                System.out.println("Error fetching games from Board Game Geek!");
                 e.printStackTrace();
             }
         }
 
         executor.shutdown();
+        return allGames;
     }
 
-    private static List<GameDTO> processXML(String xml) throws Exception
+    // Parse a batch of XML into GameDTOs
+    private static List<GameDTO> parseBatchOfGames(String xml) throws Exception
     {
         List<GameDTO> games = new ArrayList<>();
         JsonNode root = XML_MAPPER.readTree(xml);
         JsonNode itemsNode = root.path("item");
 
-        if (itemsNode.isMissingNode())
+        if (!itemsNode.isMissingNode())
         {
-            System.out.println("No <item> elements found!");
-            return games;
-        }
-
-        if (itemsNode.isArray())
-        {
-            for (JsonNode itemNode : itemsNode)
+            if (itemsNode.isArray())
             {
-                games.add(parseGame(itemNode));
+                for (JsonNode itemNode : itemsNode)
+                {
+                    games.add(parseGame(itemNode));
+                }
+            } else
+            {
+                games.add(parseGame(itemsNode));
             }
-        } else
-        {
-            // Single <item>
-            games.add(parseGame(itemsNode));
         }
 
         return games;
