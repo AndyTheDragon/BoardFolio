@@ -1,6 +1,5 @@
 package dat.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import dat.dto.GameDTO;
@@ -10,102 +9,133 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 // BGG = Board Game Geek
 // API URL: https://boardgamegeek.com/using_the_xml_api
 // API2 Docs: https://boardgamegeek.com/wiki/page/BGG_XML_API2
 public class BoardGameGeekService
 {
-    private static final HttpClient client = HttpClient.newHttpClient();
-    private static final XmlMapper xmlMapper = new XmlMapper();
-    static String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
-    private static String bggUri = "https://boardgamegeek.com/xmlapi2/thing?id=";
-    private static Long maxId = 457416L;
-    private static int batchSize = 100;
-    private int rateLimit = 5000;
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    private static final XmlMapper XML_MAPPER = new XmlMapper();
+    private static final String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
+    private static final String BGG_URI = "https://boardgamegeek.com/xmlapi2/thing?id=";
+    private static final Long MAX_ID = 457416L;
+    private static final int BATCH_SIZE = 100;
+    private static final int RATE_LIMIT = 5000;
 
-    public static List<GameDTO> getBGGGames()
+    // This method parses XML for multiple <item> elements
+    public static void fetchBGGGames()
     {
-        List<GameDTO> gameDTOs = new ArrayList<>();
+        List<String> uris = buildAllBGGUris(); // your existing batch URIs
+        List<GameDTO> allGames = new ArrayList<>();
 
-        try
-        {
-            int startId = 1;
-            while (startId < 200)
+        ExecutorService executor = Executors.newFixedThreadPool(4); // parallel processing threads
+
+        for (String uriStr : uris.subList(0, 2))
+        { // testing first 2 batches
+            try
             {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(new URI(uriStr))
+                        .header("Authorization", "Bearer " + BGG_API_KEY)
+                        .GET()
+                        .build();
 
-            }
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(bggUri))
-                    .header("Authorization", "Bearer " + BGG_API_KEY) //TODO insert API key here as a secret variable
-                    .GET()
-                    .build();
+                HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200)
-            {
-                String xml = response.body();
-
-                // Preprocess XML to fix unescaped &
-                xml = xml.replaceAll("&(?!amp;)", "&amp;");
-
-                // Parse XML into a JsonNode tree
-                JsonNode rootNode = xmlMapper.readTree(xml);
-
-                // Get the <item> array
-                JsonNode itemArray = rootNode.path("item");
-
-                if (itemArray.isArray())
+                if (response.statusCode() == 200)
                 {
-                    for (JsonNode itemNode : itemArray)
-                    {
-                        GameDTO game = new GameDTO();
+                    String xml = response.body();
+                    // escapes all & signs, it's an XML / Jackson thing
+                    xml = xml.replaceAll("&(?!amp;)", "&amp;");
 
-                        // Extract title from <name>
-                        JsonNode nameNode = itemNode.path("name");
-                        if (!nameNode.isMissingNode())
-                        {
-                            game.setTitle(nameNode.path("").asText(""));
-                        }
+                    // Submit processing to executor
+                    String finalXml = xml;
+                    Future<List<GameDTO>> future = executor.submit(() -> processXML(finalXml));
 
-                        // Extract min/max players from <stats>
-                        JsonNode statsNode = itemNode.path("stats");
-                        if (!statsNode.isMissingNode())
-                        {
-                            game.setMinNoOfPlayers(statsNode.path("minplayers").asInt(0));
-                            game.setMaxNoOfPlayers(statsNode.path("maxplayers").asInt(0));
-                        }
+                    // Collect results (blocks until parsing is done)
+                    allGames.addAll(future.get());
 
-                        // Extract release year
-                        game.setReleaseYear(itemNode.path("yearpublished").asInt(0));
-
-                        // Set empty/default values for missing fields
-                        game.setDescription("");
-                        game.setLanguages(List.of());
-                        game.setGenre(null);
-
-                        gameDTOs.add(game);
-                    }
                 } else
                 {
-                    System.out.println("No <item> elements found in XML!");
+                    System.out.println("GET failed: " + response.statusCode());
                 }
 
-            } else
-            {
-                System.out.println("GET request failed. Status code: " + response.statusCode());
-            }
+                // Respect BGG rate limit
+                Thread.sleep(5000);
 
-        } catch (Exception e)
-        {
-            e.printStackTrace();
+            } catch (Exception e)
+            {
+                System.out.println("Error while fetching games for BoardGameGeek!");
+                e.printStackTrace();
+            }
         }
 
-        return gameDTOs;
+        executor.shutdown();
+    }
+
+    private static List<GameDTO> processXML(String xml) throws Exception
+    {
+        List<GameDTO> games = new ArrayList<>();
+        JsonNode root = XML_MAPPER.readTree(xml);
+        JsonNode itemsNode = root.path("item");
+
+        if (itemsNode.isMissingNode())
+        {
+            System.out.println("No <item> elements found!");
+            return games;
+        }
+
+        if (itemsNode.isArray())
+        {
+            for (JsonNode itemNode : itemsNode)
+            {
+                games.add(parseGame(itemNode));
+            }
+        } else
+        {
+            // Single <item>
+            games.add(parseGame(itemsNode));
+        }
+
+        return games;
+    }
+
+    private static GameDTO parseGame(JsonNode itemNode)
+    {
+        GameDTO game = new GameDTO();
+
+        game.setBGG_API_ID(itemNode.path("id").asLong());
+        game.setTitle(itemNode.path("name").path("value").asText(""));
+        game.setDescription(itemNode.path("description").asText(""));
+        game.setMinNoOfPlayers(itemNode.path("minplayers").path("value").asInt(0));
+        game.setMaxNoOfPlayers(itemNode.path("maxplayers").path("value").asInt(0));
+        game.setMinAge(itemNode.path("minage").path("value").asInt(0));
+        game.setReleaseYear(itemNode.path("yearpublished").path("value").asInt(0));
+        game.setImage(itemNode.path("image").asText(""));
+        game.setThumbnail(itemNode.path("thumbnail").asText(""));
+
+        // Parse <link type="boardgamecategory" ...> elements into genres map
+        Map<Long, String> genres = new HashMap<>();
+        Iterator<JsonNode> links = itemNode.findValues("link").iterator();
+        while (links.hasNext())
+        {
+            JsonNode linkNode = links.next();
+            String type = linkNode.path("type").asText();
+            if ("boardgamecategory".equals(type))
+            {
+                long id = linkNode.path("id").asLong();
+                String value = linkNode.path("value").asText();
+                genres.put(id, value);
+            }
+        }
+        game.setGenres(genres);
+
+        return game;
     }
 
     // builds a list of URIs, each string has a set amount of Ids based on batchSize
@@ -114,10 +144,10 @@ public class BoardGameGeekService
     {
         List<String> bggUris = new ArrayList<>();
 
-        for (long start = 1; start <= maxId; start += batchSize)
+        for (long start = 1; start <= MAX_ID; start += BATCH_SIZE)
         {
-            long end = Math.min(start + batchSize - 1, maxId); // last ID in this batch
-            StringBuilder uri = new StringBuilder(bggUri);
+            long end = Math.min(start + BATCH_SIZE - 1, MAX_ID); // last ID in this batch
+            StringBuilder uri = new StringBuilder(BGG_URI);
 
             for (long i = start; i <= end; i++)
             {
@@ -127,7 +157,6 @@ public class BoardGameGeekService
                     uri.append(",");
                 }
             }
-
             bggUris.add(uri.toString());
         }
 
@@ -135,6 +164,7 @@ public class BoardGameGeekService
     }
 
 
+    //TODO was only for testing, remove later
     public static List<GameDTO> getBGGGamesFromFile()
     {
         List<GameDTO> gameDTOs = new ArrayList<>();
@@ -148,7 +178,7 @@ public class BoardGameGeekService
             xml = xml.replaceAll("&(?!amp;)", "&amp;"); // fix unescaped &
 
             // Parse XML into a JsonNode tree
-            JsonNode rootNode = xmlMapper.readTree(xml);
+            JsonNode rootNode = XML_MAPPER.readTree(xml);
 
             // Get the <item> array
             JsonNode itemArray = rootNode.path("item");
@@ -179,8 +209,6 @@ public class BoardGameGeekService
 
                     // We don’t have description, languages, or genre in XML yet
                     game.setDescription("");  // leave empty
-                    game.setLanguages(List.of()); // empty list
-                    game.setGenre(null); // leave null
 
                     gameDTOs.add(game);
                 }
