@@ -40,7 +40,6 @@ public class BoardGameGeekService
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
-
         for (int i = 0; i < uris.size(); i++)
         {
             String uriStr = uris.get(i);
