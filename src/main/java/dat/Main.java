@@ -3,10 +3,13 @@ package dat;
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.controllers.SecurityController;
+import dat.dto.GameDTO;
 import dat.routes.Routes;
+import dat.service.BoardGameGeekService;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class Main
@@ -21,7 +24,7 @@ public class Main
 
         //TODO fjern senere, tester om data bliver hentet
 //        List<GameDTO> gameDTOS = BoardGameGeekService.getBGGGamesFromFile();
-//        List<GameDTO> gameDTOS = BoardGameGeekService.getBGGGames();
+
 //        gameDTOS.forEach(game -> System.out.println(game.toString()));
 
         ApplicationConfig
