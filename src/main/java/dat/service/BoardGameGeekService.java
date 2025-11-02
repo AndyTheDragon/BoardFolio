@@ -4,11 +4,15 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import dat.dto.GameDTO;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,9 +35,11 @@ public class BoardGameGeekService
     private static final int BATCH_SIZE = 20;
     // BGGs min rate limit per request
     private static final int RATE_LIMIT_MS = 5000;
+    // Path to CSV file
+    private static final String CSV_PATH = "src/main/java/dat/service/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
-    public static List<GameDTO> fetchAllGames()
+    public static List<GameDTO> fetchAllGames() throws IOException
     {
         List<String> uris = buildAllBGGUris();
         List<GameDTO> allGames = new ArrayList<>();
@@ -159,89 +165,52 @@ public class BoardGameGeekService
 
     // builds a list of URIs, each string has a set amount of Ids based on batchSize
     // number of strings is based on maxId
-    private static List<String> buildAllBGGUris()
+    private static List<String> buildAllBGGUris() throws IOException
     {
-        List<String> bggUris = new ArrayList<>();
+        List<Long> ids = getValidBGGIds(CSV_PATH);
+        List<String> uris = new ArrayList<>();
 
-        for (long start = 1; start <= MAX_ID; start += BATCH_SIZE)
+        for (int i = 0; i < ids.size(); i += BATCH_SIZE)
         {
-            long end = Math.min(start + BATCH_SIZE - 1, MAX_ID); // last ID in this batch
-            StringBuilder uri = new StringBuilder(BGG_URI);
-
-            for (long i = start; i <= end; i++)
+            List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
+            StringBuilder sb = new StringBuilder(BGG_URI);
+            for (int j = 0; j < batch.size(); j++)
             {
-                uri.append(i);
-                if (i < end) // no trailing comma
-                {
-                    uri.append(",");
-                }
+                sb.append(batch.get(j));
+                if (j < batch.size() - 1) sb.append(",");
             }
-            bggUris.add(uri.toString());
+            uris.add(sb.toString());
         }
 
-        return bggUris;
+        return uris;
     }
 
-
-    //TODO was only for testing, remove later
-    public static List<GameDTO> getBGGGamesFromFile()
+    public static List<Long> getValidBGGIds(String csvPath) throws IOException
     {
-        List<GameDTO> gameDTOs = new ArrayList<>();
-
-        try
+        List<Long> ids = new ArrayList<>();
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(csvPath)))
         {
-            File xmlFile = new File("src/main/java/dat/service/testdata/bgg_test_data.xml");
-
-            // Read the XML as string and fix unescaped &
-            String xml = java.nio.file.Files.readString(xmlFile.toPath(), java.nio.charset.StandardCharsets.UTF_8);
-            xml = xml.replaceAll("&(?!amp;)", "&amp;"); // fix unescaped &
-
-            // Parse XML into a JsonNode tree
-            JsonNode rootNode = XML_MAPPER.readTree(xml);
-
-            // Get the <item> array
-            JsonNode itemArray = rootNode.path("item");
-
-            if (itemArray.isArray())
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null)
             {
-                for (JsonNode itemNode : itemArray)
+                if (firstLine)
                 {
-                    GameDTO game = new GameDTO();
-
-                    // Extract title from <name>
-                    JsonNode nameNode = itemNode.path("name");
-                    if (!nameNode.isMissingNode())
-                    {
-                        game.setTitle(nameNode.path("").asText("")); // actual text is under the empty key
-                    }
-
-                    // Extract min/max players from <stats>
-                    JsonNode statsNode = itemNode.path("stats");
-                    if (!statsNode.isMissingNode())
-                    {
-                        game.setMinNoOfPlayers(statsNode.path("minplayers").asInt(0));
-                        game.setMaxNoOfPlayers(statsNode.path("maxplayers").asInt(0));
-                    }
-
-                    // Extract release year
-                    game.setReleaseYear(itemNode.path("yearpublished").asInt(0));
-
-                    // We don’t have description, languages, or genre in XML yet
-                    game.setDescription("");  // leave empty
-
-                    gameDTOs.add(game);
+                    firstLine = false;
+                    continue;
+                } // skip header
+                String[] columns = line.split(";"); // adjust if CSV has quoted commas
+                String idStr = columns[0]; // assuming ID is in the first column
+                try
+                {
+                    ids.add(Long.parseLong(idStr));
+                } catch (NumberFormatException e)
+                {
+                    System.out.println("Malformed line while reading csv file: " + line);
                 }
-            } else
-            {
-                System.out.println("No <item> elements found in XML!");
             }
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
         }
-
-        return gameDTOs;
+        return ids;
     }
 
 }
