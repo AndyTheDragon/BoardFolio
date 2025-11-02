@@ -39,7 +39,7 @@ public class BoardGameGeekService
     private static final String CSV_PATH = "src/main/java/dat/service/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
-    public static List<GameDTO> fetchAllGames() throws IOException
+    public static List<GameDTO> fetchAllGames()
     {
         List<String> uris = buildAllBGGUris();
         List<GameDTO> allGames = new ArrayList<>();
@@ -90,18 +90,18 @@ public class BoardGameGeekService
 
                 } else
                 {
-                    System.out.println("GET failed: " + response.statusCode());
+                    System.out.println("\nGET failed: " + response.statusCode());
                 }
 
                 Thread.sleep(RATE_LIMIT_MS);
 
             } catch (Exception e)
             {
-                System.out.println("Error fetching games from Board Game Geek!");
+                System.out.println("\nError fetching games from Board Game Geek!");
                 e.printStackTrace();
             }
         }
-
+        System.out.println("\nFinished fetching games!");
         executor.shutdown();
         return allGames;
     }
@@ -165,24 +165,30 @@ public class BoardGameGeekService
 
     // builds a list of URIs, each string has a set amount of Ids based on batchSize
     // number of strings is based on maxId
-    private static List<String> buildAllBGGUris() throws IOException
+    private static List<String> buildAllBGGUris()
     {
-        List<Long> ids = getValidBGGIds(CSV_PATH);
-        List<String> uris = new ArrayList<>();
-
-        for (int i = 0; i < ids.size(); i += BATCH_SIZE)
+        try
         {
-            List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
-            StringBuilder sb = new StringBuilder(BGG_URI);
-            for (int j = 0; j < batch.size(); j++)
-            {
-                sb.append(batch.get(j));
-                if (j < batch.size() - 1) sb.append(",");
-            }
-            uris.add(sb.toString());
-        }
+            List<Long> ids = getValidBGGIds(CSV_PATH);
+            List<String> uris = new ArrayList<>();
 
-        return uris;
+            for (int i = 0; i < ids.size(); i += BATCH_SIZE)
+            {
+                List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
+                StringBuilder sb = new StringBuilder(BGG_URI);
+                for (int j = 0; j < batch.size(); j++)
+                {
+                    sb.append(batch.get(j));
+                    if (j < batch.size() - 1) sb.append(",");
+                }
+                uris.add(sb.toString());
+            }
+
+            return uris;
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
     }
 
     public static List<Long> getValidBGGIds(String csvPath) throws IOException
