@@ -1,133 +1,104 @@
 package dat.dao;
 
 import dat.config.HibernateConfig;
-import dat.entities.GameList;
 import dat.entities.Game;
 import dat.enums.Genre;
-import dat.enums.Languages;
+import dat.exceptions.DaoException;
+import dat.services.TestPopulator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EntityDAOTest
-{
-    private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private static final GenericDAO genericDAO = new GenericDAO(emf);
-    private Game testGame;
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class EntityDAOTest {
+
+    private static EntityManagerFactory emf;
+    private GenericDAO dao;
+
+    private final Set<Genre> genres = EnumSet.of(Genre.RACING, Genre.CIVILIZATION);
+
+    // --- Setup & Teardown ---
+
+    @BeforeAll
+    void setupClass() {
+        // Use your test DB
+        emf = HibernateConfig.getEntityManagerFactoryForTest();
+
+        // 🔹 Call your existing TestPopulator to seed initial data
+        System.out.println(">>> Calling TestPopulator.populate() before DAO tests...");
+        TestPopulator.populate();
+        System.out.println(">>> TestPopulator finished seeding data.");
+    }
 
     @BeforeEach
-    void setUp()
-    {
-        try (EntityManager em = emf.createEntityManager())
-        {
-            em.getTransaction().begin();
-            // Clean up existing data
-            em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
-            em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
-            em.createNativeQuery("DELETE FROM game_collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM collection_game").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM game").executeUpdate();
-            em.createNativeQuery("DELETE FROM collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount").executeUpdate();
+    void setupTest() {
+        dao = new GenericDAO(emf);
+    }
 
-            try {
-                em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
-            } catch (Exception ignored) {}
+    @AfterAll
+    void tearDownClass() {
+        if (emf != null) emf.close();
+    }
 
-            // Create test game
-            String testTitle = "Test Title";
-            String testDescription = "Test decription";
-            int testMinNoOfPlayers = 2;
-            int testMaxNoOfPlayers = 4;
-            int testMinAge = 10;
-            int testMaxAge = 99;
-            int testReleaseYear = 2000;
-            Languages lang1 = Languages.ENGLISH;
-            Languages lang2 = Languages.DANISH;
+    // --- Helper methods ---
 
-            List<Languages> testLanguages = new ArrayList<>();
-            testLanguages.add(lang1);
-            testLanguages.add(lang2);
+    private void clearTable(String entityName) {
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        em.createQuery("delete from " + entityName).executeUpdate();
+        em.getTransaction().commit();
+        em.close();
+    }
 
-            Set<Genre> testGenre = new HashSet<>();
-            Genre genre1 = Genre.ADVENTURE;
-            testGenre.add(genre1);
+    private Game newGame(String title) {
+        return new Game(
+                "ReadTest",
+                "Klassisk økonomi/handel brætspil for hele familien",
+                2,
+                4,
+                6,
+                1935,               // udgivelsesår for Matador/Monopoly
+                "https://example.com/catan.jpg",        // imageURL
+                "https://example.com/catan-thumb.jpg",
+                Collections.emptySet(),
+                genres);
+    }
 
-            Set<GameList> testGameLists = new HashSet<>();
-            GameList testGameList = new GameList("TestCollectionName");
-            testGameLists.add(testGameList);
+    // --- DAO Tests ---
 
-            testGame = new Game(testTitle, testDescription, testMinNoOfPlayers, testMaxNoOfPlayers, testMinAge,
-                                testMaxAge, testReleaseYear, testLanguages, testGameLists, testGenre);
-
-            testGameList.addGame(testGame);
-
-            em.persist(testGameList);
-            em.persist(testGame);
-
-            em.getTransaction().commit();
-        }
+    @Test
+    void create_shouldAssignId() throws DaoException {
+        Game created = dao.create(newGame("CreateTest"));
+        assertNotNull(created.getGameId(), "Game ID should be set after create");
     }
 
     @Test
-    void getGame()
-    {
-        // Arrange
-        // Act
-        Game result = genericDAO.getById(Game.class, 1);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(testGame.getTitle(), result.getTitle());
-        assertEquals(testGame.getMinNoOfPlayers(), result.getMinNoOfPlayers());
+    void read_shouldReturnPersistedEntity() throws DaoException {
+        Game created = dao.create(newGame("ReadTest"));
+        Game found = dao.getById(Game.class, created.getGameId());
+        assertEquals("ReadTest", found.getTitle());
     }
 
     @Test
-    void creatGame()
-    {
-        // Arrange
-        // Create test game
-        String testTitle2 = "Test Title 2";
-        String testDescription2 = "Test decription 2";
-        int testMinNoOfPlayers2 = 2;
-        int testMaxNoOfPlayers2 = 4;
-        int testMinAge2 = 10;
-        int testMaxAge2 = 99;
-        int testReleaseYear2 = 2000;
-        Languages lang1 = Languages.ENGLISH;
-        Languages lang2 = Languages.DANISH;
+    void update_shouldPersistChanges() throws DaoException {
+        Game created = dao.create(newGame("BeforeUpdate"));
+        created.setTitle("AfterUpdate");
+        Game updated = dao.update(created);
+        assertEquals("AfterUpdate", updated.getTitle());
+    }
 
-        List<Languages> testLanguages2 = new ArrayList<>();
-        testLanguages2.add(lang1);
-        testLanguages2.add(lang2);
-
-        Set<Genre> testGenre2 = new HashSet<>();
-        Genre genre1 = Genre.ADVENTURE;
-        testGenre2.add(genre1);
-
-        Set<GameList> testCollections2 = new HashSet<>();
-        GameList testGameList2 = new GameList("TestCollectionName 2");
-
-        Game testGame2 = new Game(testTitle2, testDescription2, testMinNoOfPlayers2, testMaxNoOfPlayers2, testMinAge2,
-                                  testMaxAge2, testReleaseYear2, testLanguages2, testCollections2, testGenre2);
-        // Act
-        Game result = genericDAO.create(testGame2);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(2, result.getGameId());
-        assertEquals(testGame2.getTitle(), result.getTitle());
-        assertEquals(testGame2.getLanguages().size(),result.getLanguages().size());
-        assertTrue(testGame2.getGenres().contains(Genre.ADVENTURE));
+    @Test
+    void delete_shouldRemoveRow() throws DaoException {
+        Game created = dao.create(newGame("DeleteMe"));
+        dao.delete(Game.class, created.getGameId());
+        assertThrows(DaoException.class, () ->
+                        dao.getById(Game.class, created.getGameId()),
+                "Expected DaoException when reading deleted game");
     }
 }

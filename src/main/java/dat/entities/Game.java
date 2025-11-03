@@ -49,6 +49,7 @@ public class Game
 
     public Game(String title,
                 String description,
+                int minAge,
                 int minNoOfPlayers,
                 int maxNoOfPlayers,
                 int releaseYear,

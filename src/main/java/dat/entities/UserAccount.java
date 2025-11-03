@@ -82,10 +82,10 @@ public class UserAccount
     }
 
     public void addOwnedGame(Game game) {
-    if (game == null) return;
-    myCollection.add(game);
-    game.setOwner(this);
-}
+        if (game == null) return;
+        myCollection.add(game);
+        game.setOwner(this);
+    }
 
     public void removeOwnedGame(Game game) {
         if (game == null) return;
