@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityRoutesTest
 {
+
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(SecurityRoutesTest.class.getName());
     private final String TEST_USER = "testuser";
