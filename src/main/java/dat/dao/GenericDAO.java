@@ -1,9 +1,11 @@
 package dat.dao;
 
+import dat.entities.UserAccount;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,35 @@ public class GenericDAO implements CrudDAO
         this.emf = emf;
     }
 
-    public <T> T create(T object)  throws DaoException
+    public UserAccount login(String username, String password) throws DaoException
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
+            UserAccount user = em.createQuery(
+                    "SELECT u FROM UserAccount u WHERE u.username = :username", UserAccount.class)
+                .setParameter("username", username)
+                .getSingleResult();
+
+            // Verify password
+            if (!BCrypt.checkpw(password, user.getPassword()))
+            {
+                throw new DaoException("Incorrect password.");
+            }
+
+            return user;
+        }
+        catch (jakarta.persistence.NoResultException e)
+        {
+            throw new DaoException("User not found.");
+        }
+        catch (Exception e)
+        {
+            logger.error("Error during login", e);
+            throw new DaoException("Error logging in user", e);
+        }
+    }
+
+    public <T> T create(T object) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -84,7 +114,7 @@ public class GenericDAO implements CrudDAO
                 logger.error("No entities found in db");
                 throw new EntityNotFoundException("No entities found in db");
             }
-            return em.createQuery("SELECT t FROM " + type.getSimpleName() + " t", type).getResultList();
+            return entities;
         }
         catch (Exception e)
         {
@@ -159,6 +189,4 @@ public class GenericDAO implements CrudDAO
             throw new DaoException("Error deleting object. ", e);
         }
     }
-
-
 }
