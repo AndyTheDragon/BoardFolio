@@ -6,8 +6,6 @@ import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.entities.Game;
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -32,7 +30,7 @@ public class BoardGameRouteTest {
 
 
     @BeforeAll
-        static void setupAll(){
+    static void setupAll() {
         SecurityController securityController = new SecurityController(emf);
         GameController gameController = new GameController(emf);
         Routes routes = new Routes(securityController, gameController);
@@ -46,12 +44,12 @@ public class BoardGameRouteTest {
                 .setApiExceptionHandling()
                 .checkSecurityRoles()
                 .startServer(7071);
-        RestAssured.baseURI="http://localhost:7071/api";
+        RestAssured.baseURI = "http://localhost:7071/api";
     }
 
     @BeforeEach
-    void setupTest(){
-        try(EntityManager em = emf.createEntityManager()){
+    void setupTest() {
+        try (EntityManager em = emf.createEntityManager()) {
 
             em.getTransaction().begin();
             em.createQuery("delete from Game").executeUpdate();
@@ -71,19 +69,19 @@ public class BoardGameRouteTest {
             em.getTransaction().commit();
         }
     }
-    
+
     @Test
-    void getAllBoardGames(){
-        Response response = given()
-        .when()
-            .get("/boardgames");
-        //.then()
-          //  .statusCode(200);
-            //.body("title", containsString("Catan"));
-        logger.info("getAllBoardGames response status code is " + response.toString());
-
-        System.out.println("getAllBoardGames response status code is " + response.body().prettyPrint());
+    void getAllBoardGames() {
+        given()
+                .when()
+                .get("/boardgames")
+                .then()
+                .statusCode(200)
+                .body("", hasSize(1))
+                .body("[0].title", equalTo("Catan"))
+                .log().all();
     }
-
-
 }
+
+
+
