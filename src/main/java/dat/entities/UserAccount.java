@@ -1,36 +1,107 @@
+package dat.entities;
+
+import dat.enums.Roles;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.mindrot.jbcrypt.BCrypt;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Entity
-public class UserAccount {
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class UserAccount
+{
     @Id
     private String username;
     private String password;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<Game> myCollection = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Collection> collections = new ArrayList<>();
-    public UserAccount(String userName, String userPass) {
+    @ToString.Exclude
+    private List<GameList> gameLists = new ArrayList<>();
+
+    public UserAccount(String userName, String userPass)
+    {
         this.username = userName;
         this.password = BCrypt.hashpw(userPass, BCrypt.gensalt());
     }
-    public UserAccount(String userName, Set<Roles> roleList) {
+
+    public UserAccount(String userName, Set<Roles> roleEntityList)
+    {
         this.username = userName;
-        this.roles = roleList;
+        this.roles = roleEntityList;
     }
-    // ... (other getters and role management methods)
-    public boolean verifyPassword(String pw) {
+
+    public Set<String> getRolesAsString()
+    {
+        return roles.stream().map(Roles::toString).collect(Collectors.toSet());
+    }
+
+
+    public boolean verifyPassword(String pw)
+    {
         return BCrypt.checkpw(pw, this.password);
     }
-    public void addRole(Roles role) { if (role != null) roles.add(role); }
-    public void removeRole(Roles role) { roles.remove(role); }
-    public void removeRole(String roleName) { roles.removeIf(r -> r.toString().equals(roleName)); }
-    public void addCollection(Collection list) {
-        if (list == null) return;
-        collections.add(list);
-        list.setUser(this);
+
+
+    public void addRole(Roles role)
+    {
+        if (role != null)
+        {
+            roles.add(role);
+        }
     }
-    public void removeCollection(Collection list) {
-        if (list == null) return;
-        collections.remove(list);
-        list.setUser(null);
+
+    public void removeRole(Roles role)
+    {
+        roles.remove(role);
     }
+
+    public void removeRole(String roleName)
+    {
+        //roles.remove(Roles.valueOf(roleName.toUpperCase()));
+        roles.removeIf(r -> r.toString().equals(roleName));
+    }
+
+    public void addOwnedGame(Game game) {
+        if (game == null) return;
+        myCollection.add(game);
+        game.setOwner(this);
+    }
+
+    public void removeOwnedGame(Game game) {
+        if (game == null) return;
+        myCollection.remove(game);
+        if (game.getOwner() == this) game.setOwner(null);
+    }
+
+//    public void addList(GameList list) {
+//        if (list == null) return;
+//        gameLists.add(list);
+//        list.setUser(this);
+//    }
+//
+//    public void removeList(GameList list) {
+//        if (list == null) return;
+//        gameLists.remove(list);
+//        list.setUser(null);
+//    }
 }
