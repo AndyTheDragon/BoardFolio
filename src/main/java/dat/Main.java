@@ -37,5 +37,9 @@ public class Main
                 .checkSecurityRoles()
                 .startServer(7070);
 
+        List<GameDTO> games = Populator.DevPopulator();
+
+        games.forEach(gameDTO -> System.out.println(gameDTO.toString()));
+
     }
 }

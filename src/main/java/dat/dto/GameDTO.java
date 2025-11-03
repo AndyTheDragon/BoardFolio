@@ -4,6 +4,7 @@ import dat.entities.Game;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,12 +22,12 @@ public class GameDTO {
     private int maxNoOfPlayers;
     private int minAge;
     private int releaseYear;
-    private Map<Long, String> genres;
+    private Set<String> genres;
 }
 
-public Game toEntity(GameDTO gameDTO) {
-    Game game = Game.builder()
-            .title("Dragonmaster")
-            .description()
-            .build();
-}
+//public Game toEntity(GameDTO gameDTO) {
+//    Game game = Game.builder()
+//            .title("Dragonmaster")
+//            .description()
+//            .build();
+//}

@@ -11,11 +11,13 @@ public class Populator {
     public void testPopulator() {
     }
 
-    public static void DevPopulator() throws Exception {
+    public static List<GameDTO> DevPopulator() throws Exception {
         String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml"; // path to your CSV file
         String csvAsString = readCsvFileToString(csvFilePath);
 
         List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
+
+        return gameDTOS;
 
     }
 
