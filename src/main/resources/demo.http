@@ -22,45 +22,10 @@ POST http://localhost:7070/api/auth/login
 %}
 
 ### Populate data
-POST localhost:7070/api/trips/populate
-#Authorization: Bearer {{token}}
+GET localhost:7070/api/boardgames/populate
 
-### Get all trips
-GET localhost:7070/api/trips
-Authorization: Bearer {{token}}
+### Get All Boardgames
+GET localhost:7070/api/boardgames
 
-### Get trip by ID
-GET localhost:7070/api/trips/3
-Authorization: Bearer {{token}}
 
-### Create new trip
-POST localhost:7070/api/trips
-Authorization: Bearer {{token}}
-Content-Type: "application/json"
 
-{
-    "name": "Trip to Bilka",
-    "price": 802.50,
-    "category": "CITY",
-    "startTime": "14:30",
-    "endTime": "15:45"
-}
-
-### Add game to trip
-PUT localhost:7070/api/trips/6/guides/1
-
-### Update trip
-PUT localhost:7070/api/trips/6
-Authorization: Bearer {{token}}
-Content-Type: "application/json"
-
-{
-    "name": "Trip to the Old City"
-}
-
-### Delete trip
-DELETE localhost:7070/api/trips/1
-Authorization: Bearer {{token}}
-
-### Get trip with Items
-GET localhost:7070/api/trips/1/?withItems=true

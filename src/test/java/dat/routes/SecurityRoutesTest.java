@@ -2,6 +2,7 @@ package dat.routes;
 
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
+import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.entities.UserAccount;
 import dat.enums.Roles;
@@ -33,9 +34,9 @@ class SecurityRoutesTest
 
     @BeforeAll
     static void setUpAll() {
-        TripController tripController = new TripController(emf);
+        GameController gameController = new GameController(emf);
         SecurityController securityController = new SecurityController(emf);
-        Routes routes = new Routes(tripController, securityController);
+        Routes routes = new Routes(securityController, gameController);
         ApplicationConfig
                 .getInstance()
                 .initiateServer()
