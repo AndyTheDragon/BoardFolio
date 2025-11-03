@@ -13,12 +13,20 @@ public class Main
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
 
-    public static void main(String[] args)  {
+    public static void main(String[] args)
+    {
         SecurityController securityController = new SecurityController(emf);
         Routes routes = new Routes(securityController);
 
-        ApplicationConfig.getInstance().initiateServer().setRoute(routes.getRoutes()).handleException()
-                         .setApiExceptionHandling().checkSecurityRoles().startServer(7070);
+
+        ApplicationConfig
+                .getInstance()
+                .initiateServer()
+                .setRoute(routes.getRoutes())
+                .handleException()
+                .setApiExceptionHandling()
+                .checkSecurityRoles()
+                .startServer(7070);
 
         Populator.DevPopulator();
     }

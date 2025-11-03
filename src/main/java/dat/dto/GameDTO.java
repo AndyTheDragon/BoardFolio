@@ -26,7 +26,7 @@ public class GameDTO {
     private Set<String> genres;
 
 
-    public static Game toEntity(GameDTO gameDTO) {
+    public Game toEntity(GameDTO gameDTO) {
         Set<Genre> genreEnums = gameDTO.getGenres().stream()
                 .map(genre -> genre.trim()
                         .replaceAll("\\s+", "_")

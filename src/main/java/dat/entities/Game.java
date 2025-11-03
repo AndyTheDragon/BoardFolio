@@ -99,7 +99,7 @@ public class Game
         gameList.getCustomList().remove(this);
     }
 
-    public static GameDTO toDTO(Game game)
+    public GameDTO toDTO(Game game)
     {
         Set<String> genreStrings = game.getGenres().stream()
                                        .map(Enum::name)

@@ -27,7 +27,7 @@ public class Populator {
             List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
             for (GameDTO gameDTO : gameDTOS) {
-                Game game = GameDTO.toEntity(gameDTO);
+                Game game = gameDTO.toEntity(gameDTO);
                 genericDAO.create(game);
             }
         } catch (Exception e) {
