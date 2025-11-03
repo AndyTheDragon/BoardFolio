@@ -4,6 +4,7 @@ import dat.dao.GenericDAO;
 import dat.dto.GameDTO;
 import dat.entities.Game;
 import dat.services.BoardGameGeekService;
+import dat.services.Populator;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -24,9 +25,15 @@ public class AdminController
     {
         List<GameDTO> gameDTOList = BoardGameGeekService.fetchAllGames();
 
-        for(GameDTO gameDTO : gameDTOList){
+        for (GameDTO gameDTO : gameDTOList)
+        {
             Game game = gameDTO.toEntity(gameDTO);
             genericDAO.create(game);
         }
+    }
+
+    public void populateDevDatabaseGames(Context context)
+    {
+        Populator.DevPopulator();
     }
 }
