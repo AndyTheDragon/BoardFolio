@@ -259,3 +259,18 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/java,macos,maven,intellij,react,windows,visualstudiocode
 src/main/resources/config.properties
 .idea/dataSources.xml
+.idea/compiler.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/copilot.data.migration.agent.xml
+.idea/copilot.data.migration.ask.xml
+.idea/copilot.data.migration.ask2agent.xml
+.idea/copilot.data.migration.edit.xml
+.idea/data_source_mapping.xml
+.idea/description.html
+.idea/encodings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/project-template.xml
+.idea/template-meta.xml
+.idea/vcs.xml
