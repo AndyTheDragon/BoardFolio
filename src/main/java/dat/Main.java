@@ -13,8 +13,7 @@ public class Main
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args)  {
         SecurityController securityController = new SecurityController(emf);
         Routes routes = new Routes(securityController);
 
