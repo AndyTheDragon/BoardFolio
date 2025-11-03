@@ -1,0 +1,202 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+package "dat" {
+  class Main {
+    - emf : final static EntityManagerFactory
+  }
+}
+package "dat.config" {
+  class ApplicationConfig {
+    - instance : static ApplicationConfig
+    - app : static Javalin
+    - javalinConfig : static JavalinConfig
+    - logger : static final Logger
+    - securityController : static final ISecurityController
+    --
+    + initiateServer() : ApplicationConfig
+    + checkSecurityRoles() : ApplicationConfig
+    + handleException() : ApplicationConfig
+    + startServer(int port) : void
+    + stopServer() : ApplicationConfig
+  }
+  class HibernateConfig {
+    - emf : static EntityManagerFactory
+    - emfTest : static EntityManagerFactory
+    - isTest : static Boolean
+  }
+}
+package "dat.controllers" {
+  class GameController {
+    - genericDAO : final GenericDAO
+    - boardgameDAO : final BoardgameDAO
+    - logger : final Logger
+    --
+    + populateBoardGames(@NotNull Context context) : void
+  }
+  interface IController {
+  }
+  interface ISecurityController {
+  }
+  class SecurityController {
+    - objectMapper : final ObjectMapper
+    - tokenSecurity : final ITokenSecurity
+    - securityDAO : final ISecurityDAO
+    - logger : final Logger
+    --
+    + healthCheck(@NotNull Context ctx) : void
+    + login(Context ctx) : void
+    + register(Context ctx) : void
+    + accessHandler(Context ctx) : void
+    + verify(Context ctx) : void
+    + timeToLive(Context ctx) : void
+    - userHasAllowedRole(UserDTO user, Set<RouteRole> allowedRoles) : boolean
+    - createToken(UserDTO user) : String
+    - verifyToken(String token) : UserDTO
+  }
+}
+package "dat.dao" {
+  class BoardgameDAO {
+    # emf : final EntityManagerFactory
+    - logger : final Logger
+  }
+  interface CrudDAO {
+  }
+  class GenericDAO {
+    # emf : final EntityManagerFactory
+    - logger : final Logger
+  }
+  interface ISecurityDAO {
+  }
+  class SecurityDAO {
+    - logger : final Logger
+    --
+    + createUser(String username, String password) : UserAccount
+    + addRoleToUser(String username, Roles role) : UserAccount
+    + removeRoleFromUser(String username, Roles role) : UserAccount
+  }
+}
+package "dat.dto" {
+  class GameDTO {
+    - BGG_API_ID : Long
+    - title : String
+    - image : String
+    - thumbnail : String
+    - description : String
+    - minNoOfPlayers : int
+    - maxNoOfPlayers : int
+    - minAge : int
+    - releaseYear : int
+    - genres : Set<String>
+  }
+}
+package "dat.entities" {
+  class Game {
+    - gameId : Long
+    - title : String
+    - description : String
+    - minAge : int
+    - minNoOfPlayers : int
+    - maxNoOfPlayers : int
+    - releaseYear : int
+    - imageURL : String
+    - thumbnailURL : String
+    - owner : UserAccount
+    - gameLists : Set<GameList>
+    - languages : List<Languages>
+    - genres : Set<Genre>
+    --
+    + addToCollection(GameList gameList) : void
+    + removeFromCollection(GameList gameList) : void
+  }
+  class GameList {
+    - listID : Integer
+    - name : String
+    - customList : Set<Game>
+    - user : UserAccount
+    --
+    + addGame(Game game) : void
+    + removeGame(Game game) : void
+  }
+  class UserAccount {
+    - username : String
+    - password : String
+    - roles : Set<Roles>
+    - myCollection : Set<Game>
+    - gameLists : List<GameList>
+    --
+    + verifyPassword(String pw) : boolean
+    + addRole(Roles role) : void
+    + removeRole(Roles role) : void
+    + removeRole(String roleName) : void
+    + addOwnedGame(Game game) : void
+    + removeOwnedGame(Game game) : void
+  }
+}
+package "dat.enums" {
+  enum Genre {
+  }
+  enum Languages {
+  }
+  enum Roles {
+  }
+}
+package "dat.exceptions" {
+  class ApiException {
+    - code : final int
+  }
+  class DaoException {
+  }
+  class ValidationException {
+  }
+}
+package "dat.routes" {
+  class Routes {
+    - securityController : final SecurityController
+    - gameController : final GameController
+    - jsonMapper : final ObjectMapper
+    - emf : final static EntityManagerFactory
+    --
+    - tripRoutes() : EndpointGroup
+    - authRoutes() : EndpointGroup
+    - populateRoutes() : EndpointGroup
+  }
+}
+package "dat.services" {
+  class BoardGameGeekService {
+    - HTTP_CLIENT : static final HttpClient
+    - XML_MAPPER : static final XmlMapper
+    - BGG_URI : static final String
+    - BGG_API_KEY : static final String
+    - MAX_ID : static final Long
+    - BATCH_SIZE : static final int
+    - RATE_LIMIT_MS : static final int
+    - CSV_PATH : static final String
+  }
+  class Populator {
+    - emf : final static EntityManagerFactory
+    - genericDAO : final static GenericDAO
+    --
+    + testPopulator() : void
+  }
+  class TestPopulator {
+  }
+}
+package "dat.utils" {
+  class DataAPIReader {
+    - logger : final Logger
+  }
+  class PropertyReader {
+    - logger : static final Logger
+  }
+}
+Game "*" -- "?" GameList : Set<GameList>
+Game "*" -- "?" Genre : Set<Genre>
+Game "*" -- "?" Languages : List<Languages>
+Game --> UserAccount : owner
+GameList "*" -- "?" Game : Set<Game>
+GameList --> UserAccount : user
+UserAccount "*" -- "?" Game : Set<Game>
+UserAccount "*" -- "?" GameList : List<GameList>
+UserAccount "*" -- "?" Roles : Set<Roles>
+@enduml
