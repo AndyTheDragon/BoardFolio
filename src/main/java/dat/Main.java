@@ -14,18 +14,15 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class Main {
+public class Main
+{
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         SecurityController securityController = new SecurityController(emf);
         Routes routes = new Routes(securityController);
-
-        //TODO fjern senere, tester om data bliver hentet
-//        List<GameDTO> gameDTOs = BoardGameGeekService.getBGGGamesFromFile();
-//        List<GameDTO> gameDTOs = BoardGameGeekService.fetchAllGames();
-//        gameDTOs.forEach(game -> System.out.println(game.toString()));
 
         ApplicationConfig
                 .getInstance()

@@ -33,7 +33,7 @@ public class BoardGameRouteTest {
     static void setupAll() {
         SecurityController securityController = new SecurityController(emf);
         GameController gameController = new GameController(emf);
-        Routes routes = new Routes(securityController, gameController);
+        Routes routes = new Routes(securityController);
 
 
         ApplicationConfig
@@ -60,10 +60,8 @@ public class BoardGameRouteTest {
                     .minNoOfPlayers(3)
                     .maxNoOfPlayers(4)
                     .minAge(10)
-                    .maxAge(99)
                     .releaseYear(1995)
-                    .languages(List.of("English", "German", "French"))
-                    .genre(dat.enums.Genre.STRATEGY)
+//                    .genre(dat.enums.Genre.STRATEGY)
                     .build();
             em.persist(game);
             em.getTransaction().commit();

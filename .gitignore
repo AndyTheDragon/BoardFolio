@@ -19,6 +19,8 @@
 # Ignorer konfigurationsfil
 config.properties
 
+.idea/*
+
 # Generated files
 .idea/**/contentModel.xml
 

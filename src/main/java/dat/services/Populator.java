@@ -27,7 +27,7 @@ public class Populator {
 
 
         for (GameDTO gameDTO : gameDTOS) {
-            Game game = GameDTO.toEntity(gameDTO);
+            Game game = gameDTO.toEntity(gameDTO);
             genericDAO.create(game);
         }
     }
