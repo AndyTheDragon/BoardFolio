@@ -17,6 +17,11 @@ public class Populator {
 
         List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
+        list<>
+
+        for (GameDTO gameDTO : gameDTOS){
+            GameDTO.toEntity(gameDTO);
+        }
     }
 
     public static String readCsvFileToString(String filePath) {

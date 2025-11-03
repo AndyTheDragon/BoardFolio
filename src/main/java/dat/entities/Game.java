@@ -22,6 +22,7 @@ public class Game
 
     private String title;
     private String description;
+    private int minAge;
     private int minNoOfPlayers;
     private int maxNoOfPlayers;
     private int releaseYear;

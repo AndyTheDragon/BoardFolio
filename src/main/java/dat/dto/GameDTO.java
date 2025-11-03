@@ -1,9 +1,12 @@
 package dat.dto;
 
 import dat.entities.Game;
+import dat.enums.Genre;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -22,11 +25,25 @@ public class GameDTO {
     private int minAge;
     private int releaseYear;
     private Map<Long, String> genres;
-}
 
-public Game toEntity(GameDTO gameDTO) {
-    Game game = Game.builder()
-            .title("Dragonmaster")
-            .description()
-            .build();
+    public static Game toEntity(GameDTO gameDTO) {
+
+        Set<Genre> genres = gameDTO.getGenres().values().stream()
+                .map(genreName -> Genre.valueOf(genreName.toUpperCase())) // hvis genreName matcher enum-navn
+                .collect(Collectors.toSet());
+
+        Game game = Game.builder()
+                .title(gameDTO.getTitle())
+                .description(gameDTO.getDescription())
+                .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
+                .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
+                .minAge(gameDTO.getMinAge())
+                .releaseYear(gameDTO.getReleaseYear())
+                .genres(genres)
+                .imageURL(gameDTO.getImage())
+                .thumbnailURL(gameDTO.getThumbnail())
+                .build();
+
+        return  game;
+    }
 }
