@@ -26,7 +26,8 @@ public class BoardGameGeekService
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final XmlMapper XML_MAPPER = new XmlMapper();
     private static final String BGG_URI = "https://boardgamegeek.com/xmlapi2/thing?id=";
-    private static final String BGG_API_KEY = System.getenv("BGG_API_KEY"); //TODO setup API Key as a secret system variable
+    private static final String BGG_API_KEY = System.getenv(
+            "BGG_API_KEY"); //TODO setup API Key as a secret system variable
     // The max number of IDs from BGG
     //TODO 457416 is the actual MAX_ID, 100 is for testing!
 //    private static final Long MAX_ID = 457416L;
@@ -54,10 +55,10 @@ public class BoardGameGeekService
             try
             {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(new URI(uriStr))
-                        .header("Authorization", "Bearer " + BGG_API_KEY)
-                        .GET()
-                        .build();
+                                                 .uri(new URI(uriStr))
+                                                 .header("Authorization", "Bearer " + BGG_API_KEY)
+                                                 .GET()
+                                                 .build();
 
                 HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -146,9 +147,12 @@ public class BoardGameGeekService
 
         Set<String> genres = new HashSet<>();
         JsonNode links = itemNode.path("link");
-        if (links.isArray()) {
-            for (JsonNode linkNode : links) {
-                if ("boardgamecategory".equals(linkNode.path("type").asText())) {
+        if (links.isArray())
+        {
+            for (JsonNode linkNode : links)
+            {
+                if ("boardgamecategory".equals(linkNode.path("type").asText()))
+                {
                     genres.add(linkNode.path("value").asText());
                 }
             }
@@ -167,14 +171,17 @@ public class BoardGameGeekService
             List<Long> ids = getValidBGGIds(CSV_PATH);
             List<String> uris = new ArrayList<>();
 
-            for (int i = 0; i < ids.size(); i += BATCH_SIZE)
+            for (int i = 0; i < MAX_ID; i += BATCH_SIZE)
             {
                 List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
                 StringBuilder sb = new StringBuilder(BGG_URI);
                 for (int j = 0; j < batch.size(); j++)
                 {
                     sb.append(batch.get(j));
-                    if (j < batch.size() - 1) sb.append(",");
+                    if (j < batch.size() - 1)
+                    {
+                        sb.append(",");
+                    }
                 }
                 uris.add(sb.toString());
             }
@@ -214,16 +221,21 @@ public class BoardGameGeekService
         return ids;
     }
 
-    private static String getPrimaryName(JsonNode nameNode) {
-        if (nameNode.isArray()) {
-            for (JsonNode n : nameNode) {
-                if ("primary".equals(n.path("type").asText())) {
+    private static String getPrimaryName(JsonNode nameNode)
+    {
+        if (nameNode.isArray())
+        {
+            for (JsonNode n : nameNode)
+            {
+                if ("primary".equals(n.path("type").asText()))
+                {
                     return n.path("value").asText("");
                 }
             }
             // fallback: just take the first name
             return nameNode.get(0).path("value").asText("");
-        } else {
+        } else
+        {
             return nameNode.path("value").asText("");
         }
     }
