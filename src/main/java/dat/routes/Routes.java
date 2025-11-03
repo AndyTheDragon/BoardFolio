@@ -2,29 +2,33 @@ package dat.routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dat.config.HibernateConfig;
+import dat.controllers.AdminController;
 import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.enums.Roles;
 import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
-import javax.management.relation.Role;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
-public class Routes {
+public class Routes
+{
     private final SecurityController securityController;
     private final GameController gameController;
+    private final AdminController adminController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    public Routes(SecurityController securityController) {
-
+    public Routes(SecurityController securityController)
+    {
         this.securityController = securityController;
         this.gameController = new GameController(emf);
+        this.adminController = new AdminController(emf);
     }
 
-    public EndpointGroup getRoutes() {
+    public EndpointGroup getRoutes()
+    {
         return () -> {
             path("trips", tripRoutes());
             path("auth", authRoutes());
@@ -32,7 +36,8 @@ public class Routes {
         };
     }
 
-    private EndpointGroup tripRoutes() {
+    private EndpointGroup tripRoutes()
+    {
         return () -> {
             /*get(tripController::getAllTrips);
             get("/{id}", tripController::getTripById);
@@ -44,7 +49,8 @@ public class Routes {
         };
     }
 
-    private EndpointGroup authRoutes() {
+    private EndpointGroup authRoutes()
+    {
         return () -> {
             get("/test", ctx -> ctx.json(jsonMapper.createObjectNode().put("msg", "Hello from Open")), Roles.ANYONE);
             get("/healthcheck", securityController::healthCheck, Roles.ANYONE);
@@ -55,10 +61,11 @@ public class Routes {
         };
     }
 
-    private EndpointGroup populateRoutes() {
-        return () -> { // TODO what controller?
-//            put("roles", adminController::populateDatabaseRoles,Role.ADMIN); //TODO better solution?
-//            put("games", adminController::populateDatabaseGames, Role.ADMIN);
+    private EndpointGroup populateRoutes()
+    {
+        return () -> {
+            put("games", adminController::populateDatabaseGames, Roles.ADMIN);
+            put("games/dev", adminController::populateDevDatabaseGames,Roles.ADMIN);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }

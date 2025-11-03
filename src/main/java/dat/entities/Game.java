@@ -1,11 +1,13 @@
 package dat.entities;
 
+import dat.dto.GameDTO;
 import dat.enums.Genre;
 import dat.enums.Languages;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -41,11 +43,7 @@ public class Game
     @ToString.Exclude
     private Set<GameList> gameLists = new HashSet<>();
 
-    @ElementCollection(targetClass = Languages.class)
-    @Enumerated(EnumType.STRING)
-    private List<Languages> languages;
-
-    @ElementCollection(targetClass = Genre.class)
+    @ElementCollection(targetClass = Genre.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Genre> genres = new HashSet<>();
 
@@ -69,25 +67,60 @@ public class Game
         this.genres = genres;
     }
 
-    public void setOwner(UserAccount user) {
-        if (this.owner != null) {
+    public void setOwner(UserAccount user)
+    {
+        if (this.owner != null)
+        {
             this.owner.getMyCollection().remove(this);
         }
         this.owner = user;
-        if (user != null && !user.getMyCollection().contains(this)) {
+        if (user != null && !user.getMyCollection().contains(this))
+        {
             user.getMyCollection().add(this);
         }
     }
 
-    public void addToCollection(GameList gameList) {
-        if (gameList == null) return;
+    public void addToCollection(GameList gameList)
+    {
+        if (gameList == null)
+        {
+            return;
+        }
         gameLists.add(gameList);
         gameList.getCustomList().add(this);
     }
 
-    public void removeFromCollection(GameList gameList) {
-        if (gameList == null) return;
+    public void removeFromCollection(GameList gameList)
+    {
+        if (gameList == null)
+        {
+            return;
+        }
         gameLists.remove(gameList);
         gameList.getCustomList().remove(this);
     }
+
+    public GameDTO toDTO(Game game)
+    {
+        Set<String> genreStrings = game.getGenres().stream()
+                                       .map(Enum::name)
+                                       .map(name -> name.replaceAll("_", " "))
+                                       .map(name -> name.substring(0, 1).toUpperCase() + name.substring(1)
+                                                                                             .toLowerCase())
+                                       .collect(Collectors.toSet());
+
+        GameDTO gameDTO = new GameDTO();
+        gameDTO.setTitle(game.getTitle());
+        gameDTO.setDescription(game.getDescription());
+        gameDTO.setMinNoOfPlayers(game.getMinNoOfPlayers());
+        gameDTO.setMaxNoOfPlayers(game.getMaxNoOfPlayers());
+        gameDTO.setMinAge(game.getMinAge());
+        gameDTO.setReleaseYear(game.getReleaseYear());
+        gameDTO.setGenres(genreStrings);
+        gameDTO.setImage(game.getImageURL());
+        gameDTO.setThumbnail(game.getThumbnailURL());
+
+        return gameDTO;
+    }
+
 }
