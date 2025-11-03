@@ -52,7 +52,7 @@ public class HibernateConfig
     {
         configuration.addAnnotatedClass(Game.class);
         configuration.addAnnotatedClass(UserAccount.class);
-        configuration.addAnnotatedClass(dat.entities.GameList.class);
+        configuration.addAnnotatedClass(GameList.class);
         configuration.addAnnotatedClass(Roles.class);
         configuration.addAnnotatedClass(Languages.class);
     }

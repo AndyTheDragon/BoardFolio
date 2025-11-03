@@ -21,6 +21,7 @@ public class Game
     private Long gameId;
 
     private String title;
+    @Lob
     private String description;
     private int minAge;
     private int minNoOfPlayers;

@@ -30,6 +30,6 @@ public class Main
                 .checkSecurityRoles()
                 .startServer(7070);
 
-        Populator.DevPopulator();
+
     }
 }
