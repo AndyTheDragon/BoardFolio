@@ -3,6 +3,7 @@ package dat.controllers;
 import dat.dao.BoardgameDAO;
 import dat.dao.GenericDAO;
 import dat.entities.Game;
+import dat.enums.Genre;
 import dat.exceptions.DaoException;
 import io.javalin.http.Context;
 import jakarta.persistence.EntityManagerFactory;
@@ -10,7 +11,11 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static dat.enums.Genre.STRATEGY;
 
 public class GameController
 {
@@ -29,16 +34,16 @@ public class GameController
     {
         try
         {
+            Set<Genre> genres = new HashSet<>();
+            genres.add(STRATEGY);
+
             Game game = Game.builder()
                     .title("Catan")
                     .description("Trade, build, and settle the island of Catan in this classic board game.")
                     .minNoOfPlayers(3)
                     .maxNoOfPlayers(4)
-                    .minAge(10)
-                    .maxAge(99)
                     .releaseYear(1995)
-                    .languages(List.of("English", "German", "French"))
-                    .genre(dat.enums.Genre.STRATEGY)
+                    .genres(genres)
                     .build();
 
             Game saved = genericDAO.create(game);

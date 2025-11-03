@@ -1,4 +1,4 @@
-package dat.service;
+package dat.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,7 +107,7 @@ public class BoardGameGeekService
     }
 
     // Parse a batch of XML into GameDTOs
-    private static List<GameDTO> parseBatchOfGames(String xml) throws Exception
+    public static List<GameDTO> parseBatchOfGames(String xml) throws Exception
     {
         List<GameDTO> games = new ArrayList<>();
         JsonNode root = XML_MAPPER.readTree(xml);

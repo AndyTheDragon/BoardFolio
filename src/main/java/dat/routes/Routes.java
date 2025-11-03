@@ -1,9 +1,12 @@
 package dat.routes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dat.config.HibernateConfig;
+import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.enums.Roles;
 import io.javalin.apibuilder.EndpointGroup;
+import jakarta.persistence.EntityManagerFactory;
 
 import javax.management.relation.Role;
 
@@ -12,12 +15,15 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 public class Routes
 {
     private final SecurityController securityController;
+    private final GameController gameController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
+    private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
     public Routes(SecurityController securityController)
     {
 
         this.securityController = securityController;
+        this.gameController = new GameController(emf);
     }
 
     public EndpointGroup getRoutes()
