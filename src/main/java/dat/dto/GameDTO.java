@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class GameDTO
-{
+public class GameDTO {
     private Long BGG_API_ID;
     private String title;
     private String image;
@@ -27,28 +26,27 @@ public class GameDTO
     private Set<String> genres;
 
 
-    public static Game toEntity(GameDTO gameDTO)
-    {
+    public static Game toEntity(GameDTO gameDTO) {
         Set<Genre> genreEnums = gameDTO.getGenres().stream()
-                                       .map(genre -> genre.trim()
-                                                          .replaceAll("\\s+", "_")
-                                                          .replaceAll("'", "")
-                                                          .toUpperCase())
-                                       .map(Genre::valueOf)
-                                       .collect(Collectors.toSet());
+                .map(genre -> genre.trim()
+                        .replaceAll("\\s+", "_")
+                        .replaceAll("'", "")
+                        .toUpperCase())
+                .map(Genre::valueOf)
+                .collect(Collectors.toSet());
 
 
         Game game = Game.builder()
-                        .title(gameDTO.getTitle())
-                        .description(gameDTO.getDescription())
-                        .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
-                        .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
-                        .minAge(gameDTO.getMinAge())
-                        .releaseYear(gameDTO.getReleaseYear())
-                        .genres(genreEnums)
-                        .imageURL(gameDTO.getImage())
-                        .thumbnailURL(gameDTO.getThumbnail())
-                        .build();
+                .title(gameDTO.getTitle())
+                .description(gameDTO.getDescription())
+                .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
+                .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
+                .minAge(gameDTO.getMinAge())
+                .releaseYear(gameDTO.getReleaseYear())
+                .genres(genreEnums)
+                .imageURL(gameDTO.getImage())
+                .thumbnailURL(gameDTO.getThumbnail())
+                .build();
 
         return game;
     }
