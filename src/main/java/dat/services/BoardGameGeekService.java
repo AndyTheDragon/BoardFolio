@@ -1,4 +1,4 @@
-package dat.service;
+package dat.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,7 +107,7 @@ public class BoardGameGeekService
     }
 
     // Parse a batch of XML into GameDTOs
-    private static List<GameDTO> parseBatchOfGames(String xml) throws Exception
+    public static List<GameDTO> parseBatchOfGames(String xml) throws Exception
     {
         List<GameDTO> games = new ArrayList<>();
         JsonNode root = XML_MAPPER.readTree(xml);
@@ -135,7 +135,7 @@ public class BoardGameGeekService
         GameDTO game = new GameDTO();
 
         game.setBGG_API_ID(itemNode.path("id").asLong());
-        game.setTitle(itemNode.path("name").path("value").asText(""));
+        game.setTitle(getPrimaryName(itemNode.path("name")));
         game.setDescription(itemNode.path("description").asText(""));
         game.setMinNoOfPlayers(itemNode.path("minplayers").path("value").asInt(0));
         game.setMaxNoOfPlayers(itemNode.path("maxplayers").path("value").asInt(0));
@@ -144,18 +144,13 @@ public class BoardGameGeekService
         game.setImage(itemNode.path("image").asText(""));
         game.setThumbnail(itemNode.path("thumbnail").asText(""));
 
-        // Parse <link type="boardgamecategory" ...> elements into genres map
-        Map<Long, String> genres = new HashMap<>();
-        Iterator<JsonNode> links = itemNode.findValues("link").iterator();
-        while (links.hasNext())
-        {
-            JsonNode linkNode = links.next();
-            String type = linkNode.path("type").asText();
-            if ("boardgamecategory".equals(type))
-            {
-                long id = linkNode.path("id").asLong();
-                String value = linkNode.path("value").asText();
-                genres.put(id, value);
+        Set<String> genres = new HashSet<>();
+        JsonNode links = itemNode.path("link");
+        if (links.isArray()) {
+            for (JsonNode linkNode : links) {
+                if ("boardgamecategory".equals(linkNode.path("type").asText())) {
+                    genres.add(linkNode.path("value").asText());
+                }
             }
         }
         game.setGenres(genres);
@@ -217,6 +212,20 @@ public class BoardGameGeekService
             }
         }
         return ids;
+    }
+
+    private static String getPrimaryName(JsonNode nameNode) {
+        if (nameNode.isArray()) {
+            for (JsonNode n : nameNode) {
+                if ("primary".equals(n.path("type").asText())) {
+                    return n.path("value").asText("");
+                }
+            }
+            // fallback: just take the first name
+            return nameNode.get(0).path("value").asText("");
+        } else {
+            return nameNode.path("value").asText("");
+        }
     }
 
 }

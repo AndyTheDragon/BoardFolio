@@ -5,7 +5,7 @@ import dat.enums.Languages;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Getter
@@ -14,20 +14,21 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
-@Builder
-public class Game
-{
+public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameId;
 
     private String title;
+    @Lob
     private String description;
+    private int minAge;
     private int minNoOfPlayers;
     private int maxNoOfPlayers;
-    private int minAge;
-    private int maxAge;
     private int releaseYear;
+
+    private String imageURL;
+    private String thumbnailURL;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -51,20 +52,17 @@ public class Game
                 String description,
                 int minNoOfPlayers,
                 int maxNoOfPlayers,
-                int minAge,
-                int maxAge,
                 int releaseYear,
-                List<Languages> languages,
-                Set<GameList> GameLists, Set<Genre> genres)
-    {
+                String imageURL,
+                String thumbnailURL,
+                Set<GameList> GameLists, Set<Genre> genres) {
         this.title = title;
         this.description = description;
         this.minNoOfPlayers = minNoOfPlayers;
         this.maxNoOfPlayers = maxNoOfPlayers;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
         this.releaseYear = releaseYear;
-        this.languages = languages;
+        this.imageURL = imageURL;
+        this.thumbnailURL = thumbnailURL;
         this.genres = genres;
     }
 

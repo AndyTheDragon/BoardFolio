@@ -6,28 +6,26 @@ import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.dto.GameDTO;
 import dat.routes.Routes;
-import dat.service.BoardGameGeekService;
+import dat.services.BoardGameGeekService;
+import dat.services.Populator;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 
-public class Main
-{
+public class Main {
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws Exception {
         SecurityController securityController = new SecurityController(emf);
-        GameController gameController = new GameController(emf);
-        Routes routes = new Routes(securityController, gameController);
+        Routes routes = new Routes(securityController);
 
         //TODO fjern senere, tester om data bliver hentet
 //        List<GameDTO> gameDTOs = BoardGameGeekService.getBGGGamesFromFile();
-        List<GameDTO> gameDTOs = BoardGameGeekService.fetchAllGames();
-        gameDTOs.forEach(game -> System.out.println(game.toString()));
+//        List<GameDTO> gameDTOs = BoardGameGeekService.fetchAllGames();
+//        gameDTOs.forEach(game -> System.out.println(game.toString()));
 
         ApplicationConfig
                 .getInstance()
@@ -37,5 +35,7 @@ public class Main
                 .setApiExceptionHandling()
                 .checkSecurityRoles()
                 .startServer(7070);
+
+        Populator.DevPopulator();
     }
 }
