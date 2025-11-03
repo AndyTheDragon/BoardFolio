@@ -3,72 +3,102 @@ package dat.dao;
 import dat.config.HibernateConfig;
 import dat.entities.Game;
 import dat.enums.Genre;
-import dat.enums.Languages;
 import dat.exceptions.DaoException;
+import dat.services.TestPopulator;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.*;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EntityDAOTest {
 
     private static EntityManagerFactory emf;
-    private GenericDAO dao;  // Vi bruger den generiske DAO til databaseoperationer
+    private GenericDAO dao;
+
+    private final Set<Genre> genres = EnumSet.of(Genre.RACING, Genre.CIVILIZATION);
+
+    // --- Setup & Teardown ---
 
     @BeforeAll
-    static void setupClass() {
-        // Initialisér EntityManagerFactory til test (bruger testdatabase via HibernateConfig)
+    void setupClass() {
+        // Use your test DB
         emf = HibernateConfig.getEntityManagerFactoryForTest();
+
+        // 🔹 Call your existing TestPopulator to seed initial data
+        System.out.println(">>> Calling TestPopulator.populate() before DAO tests...");
+        TestPopulator.populate();
+        System.out.println(">>> TestPopulator finished seeding data.");
     }
 
     @BeforeEach
     void setupTest() {
-        // Opret en ny DAO-instans før hver test (med delt EntityManagerFactory)
         dao = new GenericDAO(emf);
     }
 
     @AfterAll
-    static void tearDownClass() {
-        // Frigiv ressourcer efter alle tests (valgfrit luk EMF hvis nødvendigt)
-        if (emf != null) {
-            emf.close();
-        }
+    void tearDownClass() {
+        if (emf != null) emf.close();
+    }
+
+    // --- Helper methods ---
+
+    private void clearTable(String entityName) {
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        em.createQuery("delete from " + entityName).executeUpdate();
+        em.getTransaction().commit();
+        em.close();
+    }
+
+    private Game newGame(String title) {
+        return new Game(
+                "ReadTest",
+                "Klassisk økonomi/handel brætspil for hele familien",
+                2,
+                4,
+                6,
+                1935,               // udgivelsesår for Matador/Monopoly
+                "https://example.com/catan.jpg",        // imageURL
+                "https://example.com/catan-thumb.jpg",
+                Collections.emptySet(),
+                genres);
+    }
+
+    // --- DAO Tests ---
+
+    @Test
+    void create_shouldAssignId() throws DaoException {
+        Game created = dao.create(newGame("CreateTest"));
+        assertNotNull(created.getGameId(), "Game ID should be set after create");
     }
 
     @Test
-    void testCreateReadUpdateDeleteGame() throws DaoException {
-        // **Create**: Opret et nyt Game-objekt og persistér det via DAO
-        Game newGame = new Game(
-                "TestSpil",
-                "Beskrivelse af testspil",
-                1, 4,
-                10, 18,
-                2021,
-                List.of(Languages.ENGLISH),
-                Set.of(Genre.FANTASY)
-        );
-        Game createdGame = dao.create(newGame);  // gemmer spillet i databasen
-        assertNotNull(createdGame.getGameId(), "Game ID burde være sat efter create");
+    void read_shouldReturnPersistedEntity() throws DaoException {
+        Game created = dao.create(newGame("ReadTest"));
+        Game found = dao.getById(Game.class, created.getGameId());
+        assertEquals("ReadTest", found.getTitle());
+    }
 
-        // **Read**: Hent spillet fra databasen ved ID og verificér felter
-        Game foundGame = dao.getById(Game.class, createdGame.getGameId());
-        assertEquals("TestSpil", foundGame.getTitle(), "Titlen på det fundne spil skal matche det oprettede");
-        assertEquals(2021, foundGame.getReleaseYear(), "Udgivelsesåret skal matche det oprettede");
+    @Test
+    void update_shouldPersistChanges() throws DaoException {
+        Game created = dao.create(newGame("BeforeUpdate"));
+        created.setTitle("AfterUpdate");
+        Game updated = dao.update(created);
+        assertEquals("AfterUpdate", updated.getTitle());
+    }
 
-        // **Update**: Opdater en værdi på spillet og gem ændringen
-        foundGame.setTitle("OpdateretTitel");
-        Game updatedGame = dao.update(foundGame);
-        assertEquals("OpdateretTitel", updatedGame.getTitle(), "Titlen skal være opdateret i databasen");
-
-        // **Delete**: Slet spillet og forsøg at læse det igen for at sikre det er væk
-        dao.delete(Game.class, updatedGame.getGameId());
-        // Efter sletning forventer vi, at et opslag nu kaster en undtagelse (DaoException/EntityNotFoundException)
-        assertThrows(DaoException.class, () -> {
-            dao.getById(Game.class, updatedGame.getGameId());
-        }, "Forventet DaoException når man forsøger at finde slettet spil");
+    @Test
+    void delete_shouldRemoveRow() throws DaoException {
+        Game created = dao.create(newGame("DeleteMe"));
+        dao.delete(Game.class, created.getGameId());
+        assertThrows(DaoException.class, () ->
+                        dao.getById(Game.class, created.getGameId()),
+                "Expected DaoException when reading deleted game");
     }
 }

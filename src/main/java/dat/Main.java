@@ -4,6 +4,7 @@ import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.controllers.SecurityController;
 import dat.routes.Routes;
+import dat.services.TestPopulator;
 import jakarta.persistence.EntityManagerFactory;
 
 
@@ -16,6 +17,7 @@ public class Main
     {
         SecurityController securityController = new SecurityController(emf);
         Routes routes = new Routes(securityController);
+
 
         ApplicationConfig
                 .getInstance()
