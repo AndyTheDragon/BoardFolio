@@ -19,16 +19,19 @@ public class Populator {
     public void testPopulator() {
     }
 
-    public static void DevPopulator() throws Exception {
-        String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml"; // path to your CSV file
-        String csvAsString = readCsvFileToString(csvFilePath);
+    public static void DevPopulator() {
+        try {
+            String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml"; // path to your CSV file
+            String csvAsString = readCsvFileToString(csvFilePath);
 
-        List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
+            List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
-
-        for (GameDTO gameDTO : gameDTOS) {
-            Game game = gameDTO.toEntity(gameDTO);
-            genericDAO.create(game);
+            for (GameDTO gameDTO : gameDTOS) {
+                Game game = gameDTO.toEntity(gameDTO);
+                genericDAO.create(game);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

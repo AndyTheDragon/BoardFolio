@@ -54,7 +54,6 @@ public class HibernateConfig
         configuration.addAnnotatedClass(UserAccount.class);
         configuration.addAnnotatedClass(Roles.class);
         configuration.addAnnotatedClass(GameList.class);
-        configuration.addAnnotatedClass(Languages.class);
     }
 
     private static EntityManagerFactory createEMF(boolean forTest)
