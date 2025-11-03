@@ -12,22 +12,19 @@ import javax.management.relation.Role;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
-public class Routes
-{
+public class Routes {
     private final SecurityController securityController;
     private final GameController gameController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    public Routes(SecurityController securityController)
-    {
+    public Routes(SecurityController securityController) {
 
         this.securityController = securityController;
         this.gameController = new GameController(emf);
     }
 
-    public EndpointGroup getRoutes()
-    {
+    public EndpointGroup getRoutes() {
         return () -> {
             path("trips", tripRoutes());
             path("auth", authRoutes());
@@ -35,8 +32,7 @@ public class Routes
         };
     }
 
-    private EndpointGroup tripRoutes()
-    {
+    private EndpointGroup tripRoutes() {
         return () -> {
             /*get(tripController::getAllTrips);
             get("/{id}", tripController::getTripById);
@@ -48,8 +44,7 @@ public class Routes
         };
     }
 
-    private EndpointGroup authRoutes()
-    {
+    private EndpointGroup authRoutes() {
         return () -> {
             get("/test", ctx -> ctx.json(jsonMapper.createObjectNode().put("msg", "Hello from Open")), Roles.ANYONE);
             get("/healthcheck", securityController::healthCheck, Roles.ANYONE);
@@ -60,8 +55,7 @@ public class Routes
         };
     }
 
-    private EndpointGroup populateRoutes()
-    {
+    private EndpointGroup populateRoutes() {
         return () -> { // TODO what controller?
 //            put("roles", adminController::populateDatabaseRoles,Role.ADMIN); //TODO better solution?
 //            put("games", adminController::populateDatabaseGames, Role.ADMIN);

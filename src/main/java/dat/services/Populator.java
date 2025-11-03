@@ -1,13 +1,21 @@
 package dat.services;
 
+import dat.config.HibernateConfig;
+import dat.dao.GenericDAO;
 import dat.dto.GameDTO;
+import dat.entities.Game;
+import jakarta.persistence.EntityManagerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+
 public class Populator {
+    private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
+    private final static GenericDAO genericDAO = new GenericDAO(emf);
+
     public void testPopulator() {
     }
 
@@ -17,10 +25,10 @@ public class Populator {
 
         List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
-        list<>
 
-        for (GameDTO gameDTO : gameDTOS){
-            GameDTO.toEntity(gameDTO);
+        for (GameDTO gameDTO : gameDTOS) {
+            Game game = GameDTO.toEntity(gameDTO);
+            genericDAO.create(game);
         }
     }
 

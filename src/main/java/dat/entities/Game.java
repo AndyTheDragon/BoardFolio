@@ -14,13 +14,13 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @ToString
-public class Game
-{
+public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameId;
 
     private String title;
+    @Lob
     private String description;
     private int minAge;
     private int minNoOfPlayers;
@@ -55,8 +55,7 @@ public class Game
                 int releaseYear,
                 String imageURL,
                 String thumbnailURL,
-                Set<GameList> GameLists, Set<Genre> genres)
-    {
+                Set<GameList> GameLists, Set<Genre> genres) {
         this.title = title;
         this.description = description;
         this.minNoOfPlayers = minNoOfPlayers;

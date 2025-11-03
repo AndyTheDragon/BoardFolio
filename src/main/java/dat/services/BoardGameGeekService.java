@@ -21,7 +21,8 @@ import java.util.concurrent.Future;
 // BGG = Board Game Geek
 // API URL: https://boardgamegeek.com/using_the_xml_api
 // API2 Docs: https://boardgamegeek.com/wiki/page/BGG_XML_API2
-public class BoardGameGeekService {
+public class BoardGameGeekService
+{
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final XmlMapper XML_MAPPER = new XmlMapper();
     private static final String BGG_URI = "https://boardgamegeek.com/xmlapi2/thing?id=";
@@ -38,7 +39,8 @@ public class BoardGameGeekService {
     private static final String CSV_PATH = "src/main/java/dat/service/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
-    public static List<GameDTO> fetchAllGames() {
+    public static List<GameDTO> fetchAllGames()
+    {
         List<String> uris = buildAllBGGUris();
         List<GameDTO> allGames = new ArrayList<>();
 
@@ -46,9 +48,11 @@ public class BoardGameGeekService {
 
         ExecutorService executor = Executors.newFixedThreadPool(4);
 
-        for (int i = 0; i < uris.size(); i++) {
+        for (int i = 0; i < uris.size(); i++)
+        {
             String uriStr = uris.get(i);
-            try {
+            try
+            {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(new URI(uriStr))
                         .header("Authorization", "Bearer " + BGG_API_KEY)
@@ -57,7 +61,8 @@ public class BoardGameGeekService {
 
                 HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (response.statusCode() == 200) {
+                if (response.statusCode() == 200)
+                {
                     String xml = response.body().replaceAll("&(?!amp;)", "&amp;");
 
                     Future<List<GameDTO>> future = executor.submit(() -> parseBatchOfGames(xml));
@@ -83,13 +88,15 @@ public class BoardGameGeekService {
                     );
                     System.out.flush();
 
-                } else {
+                } else
+                {
                     System.out.println("\nGET failed: " + response.statusCode());
                 }
 
                 Thread.sleep(RATE_LIMIT_MS);
 
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 System.out.println("\nError fetching games from Board Game Geek!");
                 e.printStackTrace();
             }
@@ -100,17 +107,22 @@ public class BoardGameGeekService {
     }
 
     // Parse a batch of XML into GameDTOs
-    public static List<GameDTO> parseBatchOfGames(String xml) throws Exception {
+    public static List<GameDTO> parseBatchOfGames(String xml) throws Exception
+    {
         List<GameDTO> games = new ArrayList<>();
         JsonNode root = XML_MAPPER.readTree(xml);
         JsonNode itemsNode = root.path("item");
 
-        if (!itemsNode.isMissingNode()) {
-            if (itemsNode.isArray()) {
-                for (JsonNode itemNode : itemsNode) {
+        if (!itemsNode.isMissingNode())
+        {
+            if (itemsNode.isArray())
+            {
+                for (JsonNode itemNode : itemsNode)
+                {
                     games.add(parseGame(itemNode));
                 }
-            } else {
+            } else
+            {
                 games.add(parseGame(itemsNode));
             }
         }
@@ -118,7 +130,8 @@ public class BoardGameGeekService {
         return games;
     }
 
-    private static GameDTO parseGame(JsonNode itemNode) {
+    private static GameDTO parseGame(JsonNode itemNode)
+    {
         GameDTO game = new GameDTO();
 
         game.setBGG_API_ID(itemNode.path("id").asLong());
@@ -142,11 +155,65 @@ public class BoardGameGeekService {
         }
         game.setGenres(genres);
 
-
         return game;
     }
 
-    // helper method for reading titles
+    // builds a list of URIs, each string has a set amount of Ids based on batchSize
+    // number of strings is based on maxId
+    private static List<String> buildAllBGGUris()
+    {
+        try
+        {
+            List<Long> ids = getValidBGGIds(CSV_PATH);
+            List<String> uris = new ArrayList<>();
+
+            for (int i = 0; i < ids.size(); i += BATCH_SIZE)
+            {
+                List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
+                StringBuilder sb = new StringBuilder(BGG_URI);
+                for (int j = 0; j < batch.size(); j++)
+                {
+                    sb.append(batch.get(j));
+                    if (j < batch.size() - 1) sb.append(",");
+                }
+                uris.add(sb.toString());
+            }
+
+            return uris;
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
+    }
+
+    public static List<Long> getValidBGGIds(String csvPath) throws IOException
+    {
+        List<Long> ids = new ArrayList<>();
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(csvPath)))
+        {
+            String line;
+            boolean firstLine = true;
+            while ((line = br.readLine()) != null)
+            {
+                if (firstLine)
+                {
+                    firstLine = false;
+                    continue;
+                } // skip header
+                String[] columns = line.split(";"); // adjust if CSV has quoted commas
+                String idStr = columns[0]; // assuming ID is in the first column
+                try
+                {
+                    ids.add(Long.parseLong(idStr));
+                } catch (NumberFormatException e)
+                {
+                    System.out.println("Malformed line while reading csv file: " + line);
+                }
+            }
+        }
+        return ids;
+    }
+
     private static String getPrimaryName(JsonNode nameNode) {
         if (nameNode.isArray()) {
             for (JsonNode n : nameNode) {
@@ -159,51 +226,6 @@ public class BoardGameGeekService {
         } else {
             return nameNode.path("value").asText("");
         }
-    }
-
-    // builds a list of URIs, each string has a set amount of Ids based on batchSize
-    // number of strings is based on maxId
-    private static List<String> buildAllBGGUris() {
-        try {
-            List<Long> ids = getValidBGGIds(CSV_PATH);
-            List<String> uris = new ArrayList<>();
-
-            for (int i = 0; i < ids.size(); i += BATCH_SIZE) {
-                List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
-                StringBuilder sb = new StringBuilder(BGG_URI);
-                for (int j = 0; j < batch.size(); j++) {
-                    sb.append(batch.get(j));
-                    if (j < batch.size() - 1) sb.append(",");
-                }
-                uris.add(sb.toString());
-            }
-
-            return uris;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read CSV file", e);
-        }
-    }
-
-    public static List<Long> getValidBGGIds(String csvPath) throws IOException {
-        List<Long> ids = new ArrayList<>();
-        try (BufferedReader br = Files.newBufferedReader(Paths.get(csvPath))) {
-            String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false;
-                    continue;
-                } // skip header
-                String[] columns = line.split(";"); // adjust if CSV has quoted commas
-                String idStr = columns[0]; // assuming ID is in the first column
-                try {
-                    ids.add(Long.parseLong(idStr));
-                } catch (NumberFormatException e) {
-                    System.out.println("Malformed line while reading csv file: " + line);
-                }
-            }
-        }
-        return ids;
     }
 
 }

@@ -1,10 +1,9 @@
 package dat.dto;
 
 import dat.entities.Game;
+import dat.enums.Genre;
 import lombok.*;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,18 +24,18 @@ public class GameDTO {
     private int minAge;
     private int releaseYear;
     private Set<String> genres;
-}
 
-//public Game toEntity(GameDTO gameDTO) {
-//    Game game = Game.builder()
-//            .title("Dragonmaster")
-//            .description()
-//            .build();
-//}
 
-        Set<Genre> genres = gameDTO.getGenres().values().stream()
-                .map(genreName -> Genre.valueOf(genreName.toUpperCase())) // hvis genreName matcher enum-navn
+    public static Game toEntity(GameDTO gameDTO) {
+
+        Set<Genre> genreEnums = gameDTO.getGenres().stream()
+                .map(genre -> genre.trim()
+                        .replaceAll("\\s+", "_")
+                        .replaceAll("'", "")
+                        .toUpperCase())
+                .map(Genre::valueOf)
                 .collect(Collectors.toSet());
+
 
         Game game = Game.builder()
                 .title(gameDTO.getTitle())
@@ -45,11 +44,11 @@ public class GameDTO {
                 .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
                 .minAge(gameDTO.getMinAge())
                 .releaseYear(gameDTO.getReleaseYear())
-                .genres(genres)
+                .genres(genreEnums)
                 .imageURL(gameDTO.getImage())
                 .thumbnailURL(gameDTO.getThumbnail())
                 .build();
 
-        return  game;
+        return game;
     }
 }

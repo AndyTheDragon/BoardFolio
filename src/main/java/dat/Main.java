@@ -14,8 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class Main
-{
+public class Main {
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
 
@@ -37,9 +36,6 @@ public class Main
                 .checkSecurityRoles()
                 .startServer(7070);
 
-        List<GameDTO> games = Populator.DevPopulator();
-
-        games.forEach(gameDTO -> System.out.println(gameDTO.toString()));
-
+        Populator.DevPopulator();
     }
 }
