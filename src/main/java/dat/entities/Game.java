@@ -43,11 +43,7 @@ public class Game
     @ToString.Exclude
     private Set<GameList> gameLists = new HashSet<>();
 
-    @ElementCollection(targetClass = Languages.class)
-    @Enumerated(EnumType.STRING)
-    private List<Languages> languages;
-
-    @ElementCollection(targetClass = Genre.class)
+    @ElementCollection(targetClass = Genre.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Genre> genres = new HashSet<>();
 
