@@ -106,10 +106,10 @@ public class Game
     public static GameDTO toDTO(Game game)
     {
         Set<String> genreStrings = game.getGenres().stream()
-                                       .map(Enum::name) // e.g. "CARD_GAME"
-                                       .map(name -> name.replaceAll("_", " ")) // convert back to spaces
+                                       .map(Enum::name)
+                                       .map(name -> name.replaceAll("_", " "))
                                        .map(name -> name.substring(0, 1).toUpperCase() + name.substring(1)
-                                                                                             .toLowerCase()) // optional: make it pretty
+                                                                                             .toLowerCase())
                                        .collect(Collectors.toSet());
 
         GameDTO gameDTO = new GameDTO();
