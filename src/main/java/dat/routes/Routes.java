@@ -65,7 +65,7 @@ public class Routes
     {
         return () -> {
             put("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            put("games/dev", adminController::populateDevDatabaseGames,Roles.ADMIN);
+            put("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }

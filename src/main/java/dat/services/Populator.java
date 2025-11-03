@@ -12,38 +12,48 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class Populator {
+public class Populator
+{
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
     private final static GenericDAO genericDAO = new GenericDAO(emf);
 
-    public void testPopulator() {
+    public void testPopulator()
+    {
     }
 
-    public static void DevPopulator() {
-        try {
+    public static void DevPopulator()
+    {
+        try
+        {
             String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml"; // path to your CSV file
             String csvAsString = readCsvFileToString(csvFilePath);
 
             List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
-            for (GameDTO gameDTO : gameDTOS) {
+            for (GameDTO gameDTO : gameDTOS)
+            {
                 Game game = gameDTO.toEntity(gameDTO);
                 genericDAO.create(game);
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new RuntimeException(e);
         }
     }
 
-    public static String readCsvFileToString(String filePath) {
+    public static String readCsvFileToString(String filePath)
+    {
         StringBuilder content = new StringBuilder();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath)))
+        {
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
+            {
                 content.append(line).append("\n");
             }
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
 

@@ -16,7 +16,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class EntityDAOTest {
+class EntityDAOTest
+{
 
     private static EntityManagerFactory emf;
     private GenericDAO dao;
@@ -26,7 +27,8 @@ class EntityDAOTest {
     // --- Setup & Teardown ---
 
     @BeforeAll
-    void setupClass() {
+    void setupClass()
+    {
         // Use your test DB
         emf = HibernateConfig.getEntityManagerFactoryForTest();
 
@@ -37,18 +39,24 @@ class EntityDAOTest {
     }
 
     @BeforeEach
-    void setupTest() {
+    void setupTest()
+    {
         dao = new GenericDAO(emf);
     }
 
     @AfterAll
-    void tearDownClass() {
-        if (emf != null) emf.close();
+    void tearDownClass()
+    {
+        if (emf != null)
+        {
+            emf.close();
+        }
     }
 
     // --- Helper methods ---
 
-    private void clearTable(String entityName) {
+    private void clearTable(String entityName)
+    {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         em.createQuery("delete from " + entityName).executeUpdate();
@@ -56,7 +64,8 @@ class EntityDAOTest {
         em.close();
     }
 
-    private Game newGame(String title) {
+    private Game newGame(String title)
+    {
         return new Game(
                 "ReadTest",
                 "Klassisk økonomi/handel brætspil for hele familien",
@@ -73,20 +82,23 @@ class EntityDAOTest {
     // --- DAO Tests ---
 
     @Test
-    void create_shouldAssignId() throws DaoException {
+    void create_shouldAssignId() throws DaoException
+    {
         Game created = dao.create(newGame("CreateTest"));
         assertNotNull(created.getGameId(), "Game ID should be set after create");
     }
 
     @Test
-    void read_shouldReturnPersistedEntity() throws DaoException {
+    void read_shouldReturnPersistedEntity() throws DaoException
+    {
         Game created = dao.create(newGame("ReadTest"));
         Game found = dao.getById(Game.class, created.getGameId());
         assertEquals("ReadTest", found.getTitle());
     }
 
     @Test
-    void update_shouldPersistChanges() throws DaoException {
+    void update_shouldPersistChanges() throws DaoException
+    {
         Game created = dao.create(newGame("BeforeUpdate"));
         created.setTitle("AfterUpdate");
         Game updated = dao.update(created);
@@ -94,11 +106,12 @@ class EntityDAOTest {
     }
 
     @Test
-    void delete_shouldRemoveRow() throws DaoException {
+    void delete_shouldRemoveRow() throws DaoException
+    {
         Game created = dao.create(newGame("DeleteMe"));
         dao.delete(Game.class, created.getGameId());
         assertThrows(DaoException.class, () ->
-                        dao.getById(Game.class, created.getGameId()),
-                "Expected DaoException when reading deleted game");
+                             dao.getById(Game.class, created.getGameId()),
+                     "Expected DaoException when reading deleted game");
     }
 }

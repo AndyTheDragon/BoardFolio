@@ -8,18 +8,22 @@ import dat.enums.Roles;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class TestPopulator {
-    public static void populate() {
+public class TestPopulator
+{
+    public static void populate()
+    {
 
         SessionFactory sessionFactory = HibernateConfig.getEntityManagerFactory().unwrap(SessionFactory.class);
         Session session = sessionFactory.openSession();
         Transaction tx = null;
 
-        try {
+        try
+        {
             tx = session.beginTransaction();
             UserAccount user1 = new UserAccount("testuser", "password123");
             user1.addRole(Roles.USER);
@@ -61,14 +65,16 @@ public class TestPopulator {
             session.persist(game2);
 
 
-
             tx.commit();
-        } catch (Exception e) {
-            if (tx != null) {
+        } catch (Exception e)
+        {
+            if (tx != null)
+            {
                 tx.rollback();
             }
             throw e;
-        } finally {
+        } finally
+        {
             session.close();
         }
     }

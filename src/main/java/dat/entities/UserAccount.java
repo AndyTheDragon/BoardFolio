@@ -81,16 +81,27 @@ public class UserAccount
         roles.removeIf(r -> r.toString().equals(roleName));
     }
 
-    public void addOwnedGame(Game game) {
-        if (game == null) return;
+    public void addOwnedGame(Game game)
+    {
+        if (game == null)
+        {
+            return;
+        }
         myCollection.add(game);
         game.setOwner(this);
     }
 
-    public void removeOwnedGame(Game game) {
-        if (game == null) return;
+    public void removeOwnedGame(Game game)
+    {
+        if (game == null)
+        {
+            return;
+        }
         myCollection.remove(game);
-        if (game.getOwner() == this) game.setOwner(null);
+        if (game.getOwner() == this)
+        {
+            game.setOwner(null);
+        }
     }
 
 //    public void addList(GameList list) {

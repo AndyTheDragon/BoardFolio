@@ -135,8 +135,10 @@ class GenericDAOTest extends DAOTestBase
         List<Game> updated = dao.update(batch);
 
         MatcherAssert.assertThat(updated, Matchers.hasSize(2));
-        MatcherAssert.assertThat(updated, Matchers.hasItem(Matchers.hasProperty("title", Matchers.is("BatchUpdate-1-updated"))));
-        MatcherAssert.assertThat(updated, Matchers.hasItem(Matchers.hasProperty("title", Matchers.is("BatchUpdate-2-updated"))));
+        MatcherAssert.assertThat(updated,
+                                 Matchers.hasItem(Matchers.hasProperty("title", Matchers.is("BatchUpdate-1-updated"))));
+        MatcherAssert.assertThat(updated,
+                                 Matchers.hasItem(Matchers.hasProperty("title", Matchers.is("BatchUpdate-2-updated"))));
     }
 
     @Test

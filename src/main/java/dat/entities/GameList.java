@@ -44,14 +44,21 @@ public class GameList
 
     public void addGame(Game game)
     {
-        if (game == null) return;
+        if (game == null)
+        {
+            return;
+        }
         customList.add(game);
         game.getGameLists().add(this);
 
     }
 
-    public void removeGame(Game game) {
-        if (game == null) return;
+    public void removeGame(Game game)
+    {
+        if (game == null)
+        {
+            return;
+        }
         customList.remove(game);
         game.getGameLists().remove(this);
     }

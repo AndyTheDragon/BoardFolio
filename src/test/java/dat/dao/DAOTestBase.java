@@ -32,18 +32,52 @@ public class DAOTestBase
             {
                 em.getTransaction().begin();
 
-                try { em.createNativeQuery("DELETE FROM custom_list").executeUpdate(); } catch (Exception ignored) {}
-                try { em.createNativeQuery("DELETE FROM game_languages").executeUpdate(); } catch (Exception ignored) {}
-                try { em.createNativeQuery("DELETE FROM game_genres").executeUpdate(); } catch (Exception ignored) {}
-                try { em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate(); } catch (Exception ignored) {}
+                try
+                {
+                    em.createNativeQuery("DELETE FROM custom_list").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
+                try
+                {
+                    em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
+                try
+                {
+                    em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
+                try
+                {
+                    em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
 
-                try { em.createQuery("DELETE FROM GameList").executeUpdate(); } catch (Exception ignored) {}
-                try { em.createQuery("DELETE FROM Game").executeUpdate(); } catch (Exception ignored) {}
-                try { em.createQuery("DELETE FROM UserAccount").executeUpdate(); } catch (Exception ignored) {}
+                try
+                {
+                    em.createQuery("DELETE FROM GameList").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
+                try
+                {
+                    em.createQuery("DELETE FROM Game").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
+                try
+                {
+                    em.createQuery("DELETE FROM UserAccount").executeUpdate();
+                } catch (Exception ignored)
+                {
+                }
 
                 em.getTransaction().commit();
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }

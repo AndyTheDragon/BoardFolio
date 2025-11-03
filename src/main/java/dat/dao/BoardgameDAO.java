@@ -23,7 +23,9 @@ public class BoardgameDAO
     {
         if (page < 0 || pageSize < 1)
         {
-            logger.error("Page must be 0 or greater, and pageSize must be greater than 0. Received page: {}, pageSize: {}", page, pageSize);
+            logger.error(
+                    "Page must be 0 or greater, and pageSize must be greater than 0. Received page: {}, pageSize: {}",
+                    page, pageSize);
             throw new IllegalArgumentException("Page must be 0 or greater, and pageSize must be greater than 0");
         }
         int offset = page * pageSize;
@@ -38,8 +40,7 @@ public class BoardgameDAO
                 logger.debug("No entities found in db");
             }
             return entities;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             logger.error("Error reading objects from db", e);
             throw new DaoException("Error reading objects from db", e);

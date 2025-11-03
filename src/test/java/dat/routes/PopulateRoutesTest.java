@@ -74,9 +74,12 @@ class PopulateRoutesTest
             em.createNativeQuery("DELETE FROM collection").executeUpdate();
             em.createNativeQuery("DELETE FROM useraccount").executeUpdate();
 
-            try {
+            try
+            {
                 em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored)
+            {
+            }
 
 
             // Create test user with user role
@@ -104,7 +107,7 @@ class PopulateRoutesTest
                 .then()
                 .statusCode(200);
 
-        List<UserAccount> users =  genericDAO.getAll(UserAccount.class);
+        List<UserAccount> users = genericDAO.getAll(UserAccount.class);
 
         assertNotNull(users);
     }

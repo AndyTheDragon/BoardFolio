@@ -38,13 +38,13 @@ public class GameController
             genres.add(STRATEGY);
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .releaseYear(1995)
-                    .genres(genres)
-                    .build();
+                            .title("Catan")
+                            .description("Trade, build, and settle the island of Catan in this classic board game.")
+                            .minNoOfPlayers(3)
+                            .maxNoOfPlayers(4)
+                            .releaseYear(1995)
+                            .genres(genres)
+                            .build();
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);

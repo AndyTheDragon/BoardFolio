@@ -24,13 +24,15 @@ import static org.hamcrest.Matchers.hasSize;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
-public class BoardGameRouteTest {
+public class BoardGameRouteTest
+{
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(BoardGameRouteTest.class.getName());
 
 
     @BeforeAll
-    static void setupAll() {
+    static void setupAll()
+    {
         SecurityController securityController = new SecurityController(emf);
         GameController gameController = new GameController(emf);
         Routes routes = new Routes(securityController);
@@ -48,28 +50,31 @@ public class BoardGameRouteTest {
     }
 
     @BeforeEach
-    void setupTest() {
-        try (EntityManager em = emf.createEntityManager()) {
+    void setupTest()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
 
             em.getTransaction().begin();
             em.createQuery("delete from Game").executeUpdate();
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .minAge(10)
-                    .releaseYear(1995)
+                            .title("Catan")
+                            .description("Trade, build, and settle the island of Catan in this classic board game.")
+                            .minNoOfPlayers(3)
+                            .maxNoOfPlayers(4)
+                            .minAge(10)
+                            .releaseYear(1995)
 //                    .genre(dat.enums.Genre.STRATEGY)
-                    .build();
+                            .build();
             em.persist(game);
             em.getTransaction().commit();
         }
     }
 
     @Test
-    void getAllBoardGames() {
+    void getAllBoardGames()
+    {
         given()
                 .when()
                 .get("/boardgames")
