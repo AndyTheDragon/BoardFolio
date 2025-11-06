@@ -7,10 +7,14 @@ import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DAOTestBase
 {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(DAOTestBase.class);
     protected EntityManagerFactory emf;
 
     @BeforeAll
@@ -32,54 +36,20 @@ public class DAOTestBase
             {
                 em.getTransaction().begin();
 
-                try
-                {
-                    em.createNativeQuery("DELETE FROM custom_list").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
-                try
-                {
-                    em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
-                try
-                {
-                    em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
-                try
-                {
-                    em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
+                em.createNativeQuery("DELETE FROM custom_list").executeUpdate();
+                em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
+                em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
+                em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
+                em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
+                em.createQuery("DELETE FROM GameList").executeUpdate();
+                em.createQuery("DELETE FROM Game").executeUpdate();
+                em.createQuery("DELETE FROM UserAccount").executeUpdate();
 
-                try
-                {
-                    em.createQuery("DELETE FROM GameList").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
-                try
-                {
-                    em.createQuery("DELETE FROM Game").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
-                try
-                {
-                    em.createQuery("DELETE FROM UserAccount").executeUpdate();
-                } catch (Exception ignored)
-                {
-                }
 
                 em.getTransaction().commit();
             } catch (Exception e)
             {
-                e.printStackTrace();
+                log.error("Failed to clean database", e);
             }
         }
 

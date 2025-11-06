@@ -33,9 +33,8 @@ public class BoardGameRouteTest
     @BeforeAll
     static void setupAll()
     {
-        SecurityController securityController = new SecurityController(emf);
         GameController gameController = new GameController(emf);
-        Routes routes = new Routes(securityController);
+        Routes routes = new Routes(emf);
 
 
         ApplicationConfig
@@ -65,7 +64,6 @@ public class BoardGameRouteTest
                             .maxNoOfPlayers(4)
                             .minAge(10)
                             .releaseYear(1995)
-//                    .genre(dat.enums.Genre.STRATEGY)
                             .build();
             em.persist(game);
             em.getTransaction().commit();

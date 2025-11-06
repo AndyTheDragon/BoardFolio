@@ -20,6 +20,7 @@ public class GenericDAO implements CrudDAO
         this.emf = emf;
     }
 
+    @Override
     public <T> T create(T object) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())

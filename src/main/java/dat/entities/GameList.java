@@ -1,10 +1,7 @@
 package dat.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +32,7 @@ public class GameList
     @ManyToOne
     @JoinColumn(name = "user_id")
     @ToString.Exclude
+    @Setter
     private UserAccount user;
 
     public GameList(String name)
@@ -48,8 +46,7 @@ public class GameList
         {
             return;
         }
-        customList.add(game);
-        game.getGameLists().add(this);
+        this.customList.add(game);
 
     }
 
@@ -59,7 +56,6 @@ public class GameList
         {
             return;
         }
-        customList.remove(game);
-        game.getGameLists().remove(this);
+        this.customList.remove(game);
     }
 }

@@ -5,6 +5,7 @@ import dat.entities.Game;
 import dat.entities.UserAccount;
 import dat.enums.Genre;
 import dat.enums.Roles;
+import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -18,15 +19,14 @@ public class TestPopulator
     public static void populate()
     {
 
-        SessionFactory sessionFactory = HibernateConfig.getEntityManagerFactory().unwrap(SessionFactory.class);
-        Session session = sessionFactory.openSession();
-        Transaction tx = null;
+        EntityManager em = HibernateConfig.getEntityManagerFactory().createEntityManager();
 
-        try
-        {
-            tx = session.beginTransaction();
+        try {
+            em.getTransaction().begin();
+
             UserAccount user1 = new UserAccount("testuser", "password123");
             user1.addRole(Roles.USER);
+
             UserAccount adminUser = new UserAccount("admin", "adminpass");
             adminUser.addRole(Roles.ADMIN);
             adminUser.addRole(Roles.USER);
@@ -36,46 +36,39 @@ public class TestPopulator
             Game game = new Game(
                     "Catan",
                     "Trade, build, and settle.",
-                    10,
                     3,
                     4,
                     1995,
                     "https://example.com/catan.jpg",
                     "https://example.com/catan-thumb.jpg",
-                    Collections.emptySet(),
                     genres
             );
+
             Game game2 = new Game(
                     "Matador",
                     "Klassisk økonomi/handel brætspil for hele familien",
-                    2,
                     4,
                     6,
                     1935,
-                    "https://example.com/catan.jpg",
-                    "https://example.com/catan-thumb.jpg",
-                    Collections.emptySet(),
+                    "https://example.com/matador.jpg",
+                    "https://example.com/matador-thumb.jpg",
                     genres
             );
 
+            em.persist(user1);
+            em.persist(adminUser);
+            em.persist(game);
+            em.persist(game2);
 
-            session.persist(user1);
-            session.persist(adminUser);
-            session.persist(game);
-            session.persist(game2);
-
-
-            tx.commit();
-        } catch (Exception e)
-        {
-            if (tx != null)
-            {
-                tx.rollback();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
             }
-            throw e;
-        } finally
-        {
-            session.close();
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
+
     }
 }

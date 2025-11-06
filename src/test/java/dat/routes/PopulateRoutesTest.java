@@ -38,9 +38,8 @@ class PopulateRoutesTest
     @BeforeAll
     static void setUpAll()
     {
-        SecurityController securityController = new SecurityController(emf);
         genericDAO = new GenericDAO(emf);
-        Routes routes = new Routes(securityController);
+        Routes routes = new Routes(emf);
 
         ApplicationConfig
                 .getInstance()
@@ -74,13 +73,7 @@ class PopulateRoutesTest
             em.createNativeQuery("DELETE FROM collection").executeUpdate();
             em.createNativeQuery("DELETE FROM useraccount").executeUpdate();
 
-            try
-            {
-                em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
-            } catch (Exception ignored)
-            {
-            }
-
+            em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
 
             // Create test user with user role
             UserAccount testUserAccount = new UserAccount(TEST_USER, TEST_PASSWORD);
@@ -125,7 +118,7 @@ class PopulateRoutesTest
 
         List<Game> games = genericDAO.getAll(Game.class);
 
-        //TODO Check there is somthing in database
+        //TODO Check there is something in database
         assertNotNull(games);
     }
 
@@ -151,10 +144,9 @@ class PopulateRoutesTest
             adminJson = objectMapper.writeValueAsString(adminUser);
         } catch (JsonProcessingException e)
         {
-            throw new RuntimeException("Kunne ikke konvertere admin-bruger til JSON", e);
+            throw new RuntimeException("Could not convert admin user to JSON", e);
         }
 
-        // TODO Change to match Andres way
         String token = given()
                 .contentType("application/json")
                 .body(adminJson)

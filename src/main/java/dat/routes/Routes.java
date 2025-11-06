@@ -14,15 +14,15 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
 {
-    private final SecurityController securityController;
+    private SecurityController securityController;
     private final GameController gameController;
     private final AdminController adminController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
-    public Routes(SecurityController securityController)
+    public Routes(EntityManagerFactory emf)
     {
-        this.securityController = securityController;
+        this.securityController = new SecurityController(emf);
         this.gameController = new GameController(emf);
         this.adminController = new AdminController(emf);
     }
@@ -64,8 +64,8 @@ public class Routes
     private EndpointGroup populateRoutes()
     {
         return () -> {
-            put("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            put("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
+            post("games", adminController::populateDatabaseGames, Roles.ADMIN);
+            post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }

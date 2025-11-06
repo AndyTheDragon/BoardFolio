@@ -24,16 +24,14 @@ class GenericDAOTest extends DAOTestBase
 
     private Game makeGame(String title)
     {
-        Game g = new Game();
-        g.setTitle(title);
-        g.setDescription("test desc");
-        g.setMinAge(8);
-        g.setMinNoOfPlayers(2);
-        g.setMaxNoOfPlayers(4);
-        g.setReleaseYear(2020);
-        // optional:
-        // g.setImageURL("http://example.com/img.jpg");
-        // g.setThumbnailURL("http://example.com/thumb.jpg");
+        Game g = Game.builder()
+                     .title(title)
+                     .description("test desc")
+                     .minAge(8)
+                     .minNoOfPlayers(2)
+                     .maxNoOfPlayers(4)
+                     .releaseYear(2020)
+                     .build();
         return g;
     }
 

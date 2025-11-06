@@ -30,14 +30,14 @@ public class BoardGameGeekService
             "BGG_API_KEY"); //TODO setup API Key as a secret system variable
     // The max number of IDs from BGG
     //TODO 457416 is the actual MAX_ID, 100 is for testing!
-//    private static final Long MAX_ID = 457416L;
+    // private static final Long MAX_ID = 457416L;
     private static final Long MAX_ID = 100L;
     // The max number of games per request
     private static final int BATCH_SIZE = 20;
     // BGGs min rate limit per request
     private static final int RATE_LIMIT_MS = 5000;
     // Path to CSV file
-    private static final String CSV_PATH = "src/main/java/dat/service/testdata/boardgames_ranks.csv";
+    private static final String CSV_PATH = "src/main/java/dat/services/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
     public static List<GameDTO> fetchAllGames()

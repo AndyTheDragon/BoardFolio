@@ -25,7 +25,7 @@ public class Populator
     {
         try
         {
-            String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml"; // path to your CSV file
+            String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml";
             String csvAsString = readCsvFileToString(csvFilePath);
 
             List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);

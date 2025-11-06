@@ -29,10 +29,9 @@ public class UserAccount
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
 
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
     @ToString.Exclude
-    private Set<Game> myCollection = new HashSet<>();
+    private GameList myCollection = new GameList("My Collection");
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -81,38 +80,24 @@ public class UserAccount
         roles.removeIf(r -> r.toString().equals(roleName));
     }
 
-    public void addOwnedGame(Game game)
+
+    public void addList(GameList list)
     {
-        if (game == null)
+        if (list == null)
         {
             return;
         }
-        myCollection.add(game);
-        game.setOwner(this);
+        gameLists.add(list);
+        list.setUser(this);
     }
 
-    public void removeOwnedGame(Game game)
+    public void removeList(GameList list)
     {
-        if (game == null)
+        if (list == null)
         {
             return;
         }
-        myCollection.remove(game);
-        if (game.getOwner() == this)
-        {
-            game.setOwner(null);
-        }
+        gameLists.remove(list);
+        list.setUser(null);
     }
-
-//    public void addList(GameList list) {
-//        if (list == null) return;
-//        gameLists.add(list);
-//        list.setUser(this);
-//    }
-//
-//    public void removeList(GameList list) {
-//        if (list == null) return;
-//        gameLists.remove(list);
-//        list.setUser(null);
-//    }
 }

@@ -15,8 +15,7 @@ public class Main
 
     public static void main(String[] args)
     {
-        SecurityController securityController = new SecurityController(emf);
-        Routes routes = new Routes(securityController);
+        Routes routes = new Routes(emf);
 
         ApplicationConfig
                 .getInstance()

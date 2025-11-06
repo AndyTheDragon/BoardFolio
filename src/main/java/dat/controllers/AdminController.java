@@ -23,12 +23,17 @@ public class AdminController
 
     public void populateDatabaseGames(Context context)
     {
-        List<GameDTO> gameDTOList = BoardGameGeekService.fetchAllGames();
+        try {
+            List<GameDTO> gameDTOList = BoardGameGeekService.fetchAllGames();
 
-        for (GameDTO gameDTO : gameDTOList)
-        {
-            Game game = gameDTO.toEntity(gameDTO);
-            genericDAO.create(game);
+            for (GameDTO gameDTO : gameDTOList)
+            {
+                Game game = gameDTO.toEntity(gameDTO);
+                genericDAO.create(game);
+            }
+            context.status(200).result("Database populated with " + gameDTOList.size() + " games.");
+        } catch (Exception e) {
+            context.status(500).result("Failed to populate database: " + e.getMessage());
         }
     }
 
