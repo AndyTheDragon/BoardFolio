@@ -19,7 +19,9 @@ public class ApplicationConfig
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private static final ISecurityController securityController = new SecurityController();
 
-    private ApplicationConfig() {}
+    private ApplicationConfig()
+    {
+    }
 
     public static ApplicationConfig getInstance()
     {
@@ -51,7 +53,8 @@ public class ApplicationConfig
         return instance;
     }
 
-    public ApplicationConfig checkSecurityRoles() {
+    public ApplicationConfig checkSecurityRoles()
+    {
         app.beforeMatched(securityController::accessHandler); // authenticate and authorize
         return instance;
     }
@@ -67,8 +70,9 @@ public class ApplicationConfig
         return instance;
     }
 
-    public ApplicationConfig handleException(){
-        app.exception(Exception.class, (e,ctx)->{
+    public ApplicationConfig handleException()
+    {
+        app.exception(Exception.class, (e, ctx) -> {
             logger.error("Exception: {}", e.getMessage());
             ctx.status(500).json(new ErrorMessage(500, e.getMessage()));
         });
