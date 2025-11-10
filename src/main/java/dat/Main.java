@@ -5,6 +5,7 @@ import dat.config.HibernateConfig;
 import dat.controllers.SecurityController;
 import dat.routes.Routes;
 import dat.services.Populator;
+import dat.services.TestPopulator;
 import jakarta.persistence.EntityManagerFactory;
 
 

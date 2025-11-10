@@ -2,10 +2,7 @@ package dat.entities;
 
 import dat.enums.Roles;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
@@ -16,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
