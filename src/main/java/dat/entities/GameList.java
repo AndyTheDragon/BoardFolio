@@ -2,7 +2,9 @@ package dat.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@DynamicUpdate
 public class GameList
 {
 
@@ -28,6 +31,8 @@ public class GameList
     )
     @ToString.Exclude
     private Set<Game> customList = new HashSet<>();
+
+    private LocalDateTime createdDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
