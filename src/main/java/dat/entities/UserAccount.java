@@ -1,5 +1,6 @@
 package dat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dat.enums.Roles;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,9 +30,10 @@ public class UserAccount
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @ToString.Exclude
-    private GameList myCollection = new GameList("My Collection");
+    @JsonIgnore
+    private GameList myCollection = new GameList();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude

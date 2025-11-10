@@ -1,5 +1,6 @@
 package dat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString
 public class GameList
 {
@@ -33,6 +35,7 @@ public class GameList
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @Setter
+    @JsonIgnore
     private UserAccount user;
 
     public GameList(String name)

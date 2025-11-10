@@ -30,22 +30,20 @@ public class Routes
     public EndpointGroup getRoutes()
     {
         return () -> {
-            path("trips", tripRoutes());
+            path("list", gameListRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
         };
     }
 
-    private EndpointGroup tripRoutes()
+    private EndpointGroup gameListRoutes()
     {
         return () -> {
-            /*get(tripController::getAllTrips);
-            get("/{id}", tripController::getTripById);
-            post(tripController::createTrip);
-            put("/{id}", tripController::updateTrip);
-            delete("/{id}", tripController::deleteTrip);
-            put("/{tripId}/guides/{guideId}", tripController::addGuideToTrip);
-            post("/populate", tripController::populate);*/
+            //TODO Update roles for routes
+            get("/{username}", gameController::getGameListsForUser, Roles.ANYONE);
+//            post("add",gameController::createGameList);
+//            put("/{id}", tripController::updateTrip);
+            delete("/remove/{username}/{listname}", gameController::deleteUserList, Roles.ANYONE);
         };
     }
 
