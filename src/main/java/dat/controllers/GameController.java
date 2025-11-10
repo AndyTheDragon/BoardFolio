@@ -69,4 +69,23 @@ public class GameController
             ctx.status(400).result(exception.getMessage());
         }
     }
+
+    public void searchGame(@NotNull Context ctx)
+    {
+        String title = ctx.queryParam("title");
+        if (title == null || title.isBlank())
+        {
+            ctx.status(400).result("Title query parameter is required");
+            return;
+        }
+        try
+        {
+            Game game = boardgameDAO.searchByTitle(title).stream().findFirst().orElse(null);
+            ctx.status(200).json(game);
+        } catch (DaoException daoException)
+        {
+            logger.error(daoException.getMessage());
+            ctx.status(400).result(daoException.getMessage());
+        }
+    }
 }

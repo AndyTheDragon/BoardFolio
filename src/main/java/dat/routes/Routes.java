@@ -33,6 +33,7 @@ public class Routes
             path("trips", tripRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
+            path("games", gameRoutes());
         };
     }
 
@@ -67,6 +68,13 @@ public class Routes
             post("games", adminController::populateDatabaseGames, Roles.ADMIN);
             post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
+        };
+    }
+
+    private EndpointGroup gameRoutes()
+    {
+        return () -> {
+            get("", gameController::searchGame, Roles.ANYONE);
         };
     }
 
