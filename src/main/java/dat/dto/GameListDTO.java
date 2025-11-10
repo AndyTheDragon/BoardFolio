@@ -20,7 +20,7 @@ public class GameListDTO
 {
     private Integer listID;
     private String name;
-    private Set<GameDTO> customList;
+    private Set<GameDTO> customList = new HashSet<>();
     private LocalDateTime createdDate;
     private boolean isPublic;
     private UserAccount user;
