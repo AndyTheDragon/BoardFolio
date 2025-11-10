@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @ToString
 public class GameDTO
 {
+    private Long gameId;
     private Long BGG_API_ID;
     private String title;
     private String image;
@@ -39,6 +40,7 @@ public class GameDTO
 
 
         Game game = Game.builder()
+                        .gameId(gameDTO.gameId)
                         .title(gameDTO.getTitle())
                         .description(gameDTO.getDescription())
                         .minNoOfPlayers(gameDTO.getMinNoOfPlayers())

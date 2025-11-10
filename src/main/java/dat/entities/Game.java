@@ -67,6 +67,7 @@ public class Game
                                        .collect(Collectors.toSet());
 
         GameDTO gameDTO = new GameDTO();
+        gameDTO.setGameId(game.getGameId());
         gameDTO.setTitle(game.getTitle());
         gameDTO.setDescription(game.getDescription());
         gameDTO.setMinNoOfPlayers(game.getMinNoOfPlayers());
