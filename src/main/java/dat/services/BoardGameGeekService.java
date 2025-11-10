@@ -37,7 +37,7 @@ public class BoardGameGeekService
     // BGGs min rate limit per request
     private static final int RATE_LIMIT_MS = 5000;
     // Path to CSV file
-    private static final String CSV_PATH = "src/main/java/dat/services/testdata/boardgames_ranks.csv";
+    private static final String CSV_PATH = "src/main/resources/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
     public static List<GameDTO> fetchAllGames()
