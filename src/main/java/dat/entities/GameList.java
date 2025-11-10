@@ -33,6 +33,7 @@ public class GameList
     private Set<Game> customList = new HashSet<>();
 
     private LocalDateTime createdDate;
+    private boolean isPublic;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
