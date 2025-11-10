@@ -1,5 +1,7 @@
 package dat.entities;
 
+import dat.dto.GameDTO;
+import dat.dto.GameListDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -7,9 +9,11 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -53,7 +57,6 @@ public class GameList
             return;
         }
         this.customList.add(game);
-
     }
 
     public void removeGame(Game game)
@@ -63,5 +66,21 @@ public class GameList
             return;
         }
         this.customList.remove(game);
+    }
+
+    public GameListDTO toDTO(GameList gameList)
+    {
+        Set<GameDTO> customListDTO = gameList.getCustomList().stream()
+                                             .map(game ->
+                                                          game.toDTO(game))
+                                             .collect(Collectors.toSet());
+        GameListDTO gameListDTO = new GameListDTO();
+        gameListDTO.setCustomList(customListDTO);
+        gameListDTO.setName(gameList.getName());
+        gameListDTO.setListID(gameList.getListID());
+        gameListDTO.setCreatedDate(gameList.getCreatedDate());
+        gameListDTO.setPublic(gameList.isPublic());
+
+        return gameListDTO;
     }
 }
