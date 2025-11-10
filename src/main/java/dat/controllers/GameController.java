@@ -4,6 +4,7 @@ import dat.dao.BoardgameDAO;
 import dat.dao.GameListDAO;
 import dat.dao.GenericDAO;
 import dat.dto.ErrorMessage;
+import dat.dto.GameListDTO;
 import dat.entities.Game;
 import dat.entities.GameList;
 import dat.entities.UserAccount;
@@ -89,10 +90,41 @@ public class GameController
 
     public void deleteUserList(@NotNull Context ctx)
     {
-        String username = ctx.pathParam("username");
-        String clName = ctx.pathParam("customList");
+        int listID = Integer.parseInt(ctx.pathParam("listID"));
+        gameListDAO.deleteListFromUser(listID);
+    }
 
-        gameListDAO.deleteListFromUser(username, clName);
+    public void createGameList(@NotNull Context ctx)
+    {
+        GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
 
+        GameList gameLists = gameListDTO.toEntity(gameListDTO);
+
+        genericDAO.create(gameLists);
+    }
+
+    public void updateList(@NotNull Context ctx)
+    {
+        int listID = Integer.parseInt(ctx.pathParam("listID"));
+
+        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+
+        if (databaseGameList == null)
+        {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
+
+        GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
+
+        GameList gameListToUpdate = gameListDTO.toEntity(gameListDTO);
+
+        databaseGameList.setName(gameListToUpdate.getName());
+        databaseGameList.setCustomList(gameListToUpdate.getCustomList());
+        databaseGameList.setPublic(gameListToUpdate.isPublic());
+
+        genericDAO.update(databaseGameList);
+
+        ctx.status(200).json("Game list updated");
     }
 }

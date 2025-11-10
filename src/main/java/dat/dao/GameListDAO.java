@@ -43,7 +43,7 @@ public class GameListDAO
         return null;
     }
 
-    public void deleteListFromUser(String username, String clName)
+    public void deleteListFromUser(int listID)
     {
         try (EntityManager em = emf.createEntityManager())
         {
@@ -51,18 +51,16 @@ public class GameListDAO
 
             int deleted = em.createQuery(
                                     "DELETE FROM GameList gl " +
-                                    "WHERE gl.user.username = :username " +
-                                    "AND gl.name = :listname"
+                                    "WHERE gl.listID = :listID "
                             )
-                            .setParameter("username", username)
-                            .setParameter("listname", clName)
+                            .setParameter("listID", listID)
                             .executeUpdate();
 
             em.getTransaction().commit();
 
             if (deleted == 0)
             {
-                logger.warn("No game list found for user: {} with name: {}", username, clName);
+                logger.warn("No game list with id: ", listID);
             }
 
         } catch (Exception e)

@@ -10,6 +10,8 @@ import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
 
+import javax.management.relation.Role;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
@@ -41,9 +43,11 @@ public class Routes
         return () -> {
             //TODO Update roles for routes
             get("/{username}", gameController::getGameListsForUser, Roles.ANYONE);
-//            post("add",gameController::createGameList);
-//            put("/{id}", tripController::updateTrip);
-            delete("/remove/{username}/{listname}", gameController::deleteUserList, Roles.ANYONE);
+            post("add", gameController::createGameList, Roles.ANYONE);
+            put("/update/{listID}", gameController::updateList, Roles.ANYONE);
+            delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
+//            get("/list/{username}/{uuid}", gameController::getGameListById, Roles.ANYONE);
+
         };
     }
 
