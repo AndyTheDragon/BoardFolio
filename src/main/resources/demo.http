@@ -27,5 +27,6 @@ GET localhost:7070/api/boardgames/populate
 ### Get All Boardgames
 GET localhost:7070/api/boardgames
 
-
+### Search game by title
+GET localhost:7070/api/games/search?title=Catan
 

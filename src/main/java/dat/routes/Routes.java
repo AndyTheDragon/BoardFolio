@@ -74,7 +74,7 @@ public class Routes
     private EndpointGroup gameRoutes()
     {
         return () -> {
-            get("", gameController::searchGame, Roles.ANYONE);
+            get("search", gameController::searchGame, Roles.ANYONE);
         };
     }
 
