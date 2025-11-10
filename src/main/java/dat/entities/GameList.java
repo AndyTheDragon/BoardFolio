@@ -74,6 +74,7 @@ public class GameList
                                              .map(game ->
                                                           game.toDTO(game))
                                              .collect(Collectors.toSet());
+
         GameListDTO gameListDTO = new GameListDTO();
         gameListDTO.setCustomList(customListDTO);
         gameListDTO.setName(gameList.getName());
