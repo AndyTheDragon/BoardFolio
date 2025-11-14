@@ -127,8 +127,21 @@ public class GameController
         databaseGameList.setPublic(gameListToUpdate.isPublic());
 
         genericDAO.update(databaseGameList);
-
         //TODO: response has to be valid json like this
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
+
+    public void getGameListById(@NotNull Context ctx)
+    {
+        int listID = Integer.parseInt(ctx.pathParam("listID"));
+        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+
+        if (databaseGameList == null)
+        {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
+        ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
+    }
+
 }
