@@ -34,20 +34,27 @@ public class GameListDTO
         this.customList.add(game);
     }
 
-    public GameList toEntity(GameListDTO gameListDTO)
+    public GameList toEntity(GameListDTO dto)
     {
-        Set<Game> customList = gameListDTO.getCustomList().stream()
-                                          .map(gameDTO ->
-                                                       gameDTO.toEntity(gameDTO))
-                                          .collect(Collectors.toSet());
 
-        GameList gameList = new GameList();
-        gameList.setCustomList(customList);
-        gameList.setName(gameList.getName());
-        gameList.setListID(gameList.getListID());
-        gameList.setCreatedDate(gameList.getCreatedDate());
-        gameList.setPublic(gameList.isPublic());
+        // convert games
+        Set<Game> customList = new HashSet<>();
+        if (dto.getCustomList() != null)
+        {
+            customList = dto.getCustomList().stream()
+                    .map(g -> g.toEntity(g))
+                    .collect(Collectors.toSet());
+        }
 
-        return gameList;
+        GameList entity = new GameList();
+        entity.setListID(dto.getListID());
+        entity.setName(dto.getName());
+        entity.setCustomList(customList);
+        entity.setCreatedDate(dto.getCreatedDate());
+        entity.setPublic(dto.isPublic());
+        entity.setUser(dto.getUser());
+
+        return entity;
     }
+
 }
