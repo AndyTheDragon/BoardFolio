@@ -128,6 +128,20 @@ public class GameController
 
         genericDAO.update(databaseGameList);
 
-        ctx.status(200).json("Game list updated");
+//        ctx.status(200).json("Game list updated");
     }
+
+    public void getGameListById(@NotNull Context ctx)
+    {
+        int listID = Integer.parseInt(ctx.pathParam("listID"));
+        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+
+        if (databaseGameList == null)
+        {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
+        ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
+    }
+
 }
