@@ -128,6 +128,7 @@ public class GameController
 
         genericDAO.update(databaseGameList);
 
-        ctx.status(200).json("Game list updated");
+        //TODO: response has to be valid json like this
+        ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
 }
