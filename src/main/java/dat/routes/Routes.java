@@ -46,7 +46,7 @@ public class Routes
             post("/add", gameController::createGameList, Roles.ANYONE);
             put("/update/{listID}", gameController::updateList, Roles.ANYONE);
             delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
-//            get("/list/{username}/{uuid}", gameController::getGameListById, Roles.ANYONE);
+            get("/list/{username}/{uuid}", gameController::getGameListById, Roles.ANYONE);
 
         };
     }
