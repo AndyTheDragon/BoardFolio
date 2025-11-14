@@ -11,6 +11,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -41,6 +42,7 @@ public class Populator
                 genericDAO.create(game);
             }
             GameList customList = new GameList("test");
+            customList.setCreatedDate(LocalDateTime.now());
             user.addList(customList);
             customList.addGame(gameDTOS.get(0).toEntity(gameDTOS.get(0)));
             genericDAO.create(customList);
