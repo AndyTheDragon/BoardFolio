@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -34,17 +35,31 @@ public class Populator
             List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
 
             UserAccount user = new UserAccount("testUser", "test");
-            genericDAO.create(user);
+
 
             for (GameDTO gameDTO : gameDTOS)
             {
                 Game game = gameDTO.toEntity(gameDTO);
                 genericDAO.create(game);
             }
+
+            user.getMyCollection().setUser(user);
+            user.getMyCollection().setCreatedDate(LocalDateTime.now());
+            user.getMyCollection().setName("My collection of games");
+            user.addToMyCollection(gameDTOS.get(1).toEntity(gameDTOS.get(1)));
+            user.addToMyCollection(gameDTOS.get(2).toEntity(gameDTOS.get(2)));
+            user.addToMyCollection(gameDTOS.get(5).toEntity(gameDTOS.get(5)));
+
+
+            genericDAO.create(user);
+
             GameList customList = new GameList("test");
             customList.setCreatedDate(LocalDateTime.now());
             user.addList(customList);
+
             customList.addGame(gameDTOS.get(0).toEntity(gameDTOS.get(0)));
+            customList.addGame(gameDTOS.get(1).toEntity(gameDTOS.get(1)));
+            customList.addGame(gameDTOS.get(2).toEntity(gameDTOS.get(2)));
             genericDAO.create(customList);
 
         } catch (Exception e)
