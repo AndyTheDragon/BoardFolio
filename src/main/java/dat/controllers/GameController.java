@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,13 +48,13 @@ public class GameController
             genres.add(STRATEGY);
 
             Game game = Game.builder()
-                            .title("Catan")
-                            .description("Trade, build, and settle the island of Catan in this classic board game.")
-                            .minNoOfPlayers(3)
-                            .maxNoOfPlayers(4)
-                            .releaseYear(1995)
-                            .genres(genres)
-                            .build();
+                    .title("Catan")
+                    .description("Trade, build, and settle the island of Catan in this classic board game.")
+                    .minNoOfPlayers(3)
+                    .maxNoOfPlayers(4)
+                    .releaseYear(1995)
+                    .genres(genres)
+                    .build();
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);
@@ -97,6 +98,8 @@ public class GameController
     public void createGameList(@NotNull Context ctx)
     {
         GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
+        // sets a timestamp for when list was created
+        gameListDTO.setCreatedDate(LocalDateTime.now());
 
         GameList gameLists = gameListDTO.toEntity(gameListDTO);
 
