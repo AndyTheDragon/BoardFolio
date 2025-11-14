@@ -15,6 +15,12 @@
 # AWS User-specific
 .idea/**/aws.xml
 
+
+# Ignorer konfigurationsfil
+config.properties
+
+.idea/*
+
 # Generated files
 .idea/**/contentModel.xml
 
@@ -253,3 +259,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/java,macos,maven,intellij,react,windows,visualstudiocode
+src/main/resources/config.properties
+.idea/*

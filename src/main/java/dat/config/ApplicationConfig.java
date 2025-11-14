@@ -7,6 +7,7 @@ import dat.exceptions.ApiException;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
+import io.javalin.http.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,9 @@ public class ApplicationConfig
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
     private static final ISecurityController securityController = new SecurityController();
 
-    private ApplicationConfig() {}
+    private ApplicationConfig()
+    {
+    }
 
     public static ApplicationConfig getInstance()
     {
@@ -51,7 +54,8 @@ public class ApplicationConfig
         return instance;
     }
 
-    public ApplicationConfig checkSecurityRoles() {
+    public ApplicationConfig checkSecurityRoles()
+    {
         app.beforeMatched(securityController::accessHandler); // authenticate and authorize
         return instance;
     }
@@ -67,8 +71,9 @@ public class ApplicationConfig
         return instance;
     }
 
-    public ApplicationConfig handleException(){
-        app.exception(Exception.class, (e,ctx)->{
+    public ApplicationConfig handleException()
+    {
+        app.exception(Exception.class, (e, ctx) -> {
             logger.error("Exception: {}", e.getMessage());
             ctx.status(500).json(new ErrorMessage(500, e.getMessage()));
         });
@@ -76,10 +81,12 @@ public class ApplicationConfig
         return instance;
     }
 
-    public void startServer(int port)
+    public ApplicationConfig startServer(int port)
     {
+        app.before(ApplicationConfig::corsHeaders);
+        app.options("/*", ApplicationConfig::corsHeadersOptions);
         app.start(port);
-        logger.info("Server started on port: {}", port);
+        return instance;
     }
 
 
@@ -88,5 +95,21 @@ public class ApplicationConfig
         app.stop();
         logger.info("Server stopped");
         return instance;
+    }
+
+
+    private static void corsHeaders(Context ctx) {
+        ctx.header("Access-Control-Allow-Origin", "*");
+        ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        ctx.header("Access-Control-Allow-Credentials", "true");
+    }
+
+    private static void corsHeadersOptions(Context ctx) {
+        ctx.header("Access-Control-Allow-Origin", "*");
+        ctx.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        ctx.header("Access-Control-Allow-Credentials", "true");
+        ctx.status(204);
     }
 }

@@ -24,16 +24,17 @@ import static org.hamcrest.Matchers.hasSize;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
-public class BoardGameRouteTest {
+public class BoardGameRouteTest
+{
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
     private final Logger logger = LoggerFactory.getLogger(BoardGameRouteTest.class.getName());
 
 
     @BeforeAll
-    static void setupAll() {
-        SecurityController securityController = new SecurityController(emf);
+    static void setupAll()
+    {
         GameController gameController = new GameController(emf);
-        Routes routes = new Routes(securityController, gameController);
+        Routes routes = new Routes(emf);
 
 
         ApplicationConfig
@@ -48,30 +49,30 @@ public class BoardGameRouteTest {
     }
 
     @BeforeEach
-    void setupTest() {
-        try (EntityManager em = emf.createEntityManager()) {
+    void setupTest()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
 
             em.getTransaction().begin();
             em.createQuery("delete from Game").executeUpdate();
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .minAge(10)
-                    .maxAge(99)
-                    .releaseYear(1995)
-                    .languages(List.of("English", "German", "French"))
-                    .genre(dat.enums.Genre.STRATEGY)
-                    .build();
+                            .title("Catan")
+                            .description("Trade, build, and settle the island of Catan in this classic board game.")
+                            .minNoOfPlayers(3)
+                            .maxNoOfPlayers(4)
+                            .minAge(10)
+                            .releaseYear(1995)
+                            .build();
             em.persist(game);
             em.getTransaction().commit();
         }
     }
 
     @Test
-    void getAllBoardGames() {
+    void getAllBoardGames()
+    {
         given()
                 .when()
                 .get("/boardgames")
