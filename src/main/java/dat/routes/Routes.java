@@ -43,7 +43,7 @@ public class Routes
         return () -> {
             //TODO Update roles for routes
             get("/{username}", gameController::getGameListsForUser, Roles.ANYONE);
-            post("add", gameController::createGameList, Roles.ANYONE);
+            post("/add", gameController::createGameList, Roles.ANYONE);
             put("/update/{listID}", gameController::updateList, Roles.ANYONE);
             delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
 //            get("/list/{username}/{uuid}", gameController::getGameListById, Roles.ANYONE);
