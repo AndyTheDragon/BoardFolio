@@ -54,6 +54,7 @@
             <version>${javalin.version}</version>
         </dependency>
 
+
         <!--  Logging    -->
         <dependency>
             <groupId>org.slf4j</groupId>
