@@ -7,7 +7,6 @@ import dat.dto.ErrorMessage;
 import dat.dto.GameListDTO;
 import dat.entities.Game;
 import dat.entities.GameList;
-import dat.entities.UserAccount;
 import dat.enums.Genre;
 import dat.exceptions.DaoException;
 import io.javalin.http.Context;
@@ -17,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
