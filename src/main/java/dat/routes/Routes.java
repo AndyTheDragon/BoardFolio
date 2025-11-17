@@ -75,8 +75,9 @@ public class Routes
 
     private EndpointGroup collectionRoutes() {
         return () -> {
-            put("/collection/add", collectionController::addToCollection);
-            delete("/collection/remove", collectionController::removeFromCollection);
+            put("/collection/add", collectionController::addToCollection, Roles.ANYONE);
+            delete("/collection/remove", collectionController::removeFromCollection, Roles.ANYONE);
+            get("/collection/get", collectionController::getCollection, Roles.ANYONE);
         };
     }
 

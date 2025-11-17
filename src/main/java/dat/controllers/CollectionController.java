@@ -92,4 +92,24 @@ public class CollectionController {
             em.close();
         }
     }
+
+    public void getCollection(Context ctx)
+    {
+        String username = ctx.queryParam("username");
+
+        EntityManager em = emf.createEntityManager();
+        try {
+            UserAccount user = em.find(UserAccount.class, username);
+            if (user == null) {
+                throw new NotFoundResponse("User not found");
+            }
+            GameList collection = user.getMyCollection();
+
+            collection.getCustomList().size();
+
+            ctx.json(collection.getCustomList());
+        } finally {
+            em.close();
+        }
+    }
 }
