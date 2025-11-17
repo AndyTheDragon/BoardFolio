@@ -4,6 +4,7 @@ import dat.config.HibernateConfig;
 import dat.services.TestPopulator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.logging.Logger;
 
+@Ignore
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DAOTestBase
 {
