@@ -3,6 +3,7 @@ package dat.routes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dat.config.HibernateConfig;
 import dat.controllers.AdminController;
+import dat.controllers.CollectionController;
 import dat.controllers.GameController;
 import dat.controllers.SecurityController;
 import dat.enums.Roles;
@@ -17,6 +18,7 @@ public class Routes
     private SecurityController securityController;
     private final GameController gameController;
     private final AdminController adminController;
+    private final CollectionController collectionController;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
 
@@ -25,6 +27,7 @@ public class Routes
         this.securityController = new SecurityController(emf);
         this.gameController = new GameController(emf);
         this.adminController = new AdminController(emf);
+        this.collectionController = new CollectionController(emf);
     }
 
     public EndpointGroup getRoutes()
@@ -67,6 +70,13 @@ public class Routes
             post("games", adminController::populateDatabaseGames, Roles.ADMIN);
             post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
+        };
+    }
+
+    private EndpointGroup collectionRoutes() {
+        return () -> {
+            put("/collection/add", collectionController::addToCollection);
+            delete("/collection/remove", collectionController::removeFromCollection);
         };
     }
 

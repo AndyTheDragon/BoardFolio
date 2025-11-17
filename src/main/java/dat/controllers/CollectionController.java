@@ -1,6 +1,5 @@
 package dat.controllers;
 
-import dat.config.HibernateConfig;
 import dat.dto.GameDTO;
 import dat.entities.Game;
 import dat.entities.GameList;
@@ -12,7 +11,11 @@ import jakarta.persistence.EntityManagerFactory;
 
 public class CollectionController {
 
-    private final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
+    private final EntityManagerFactory emf;
+
+    public CollectionController(EntityManagerFactory emf) {
+        this.emf = emf;
+    }
 
     public void addToCollection(Context ctx) {
         String username = ctx.queryParam("username");
@@ -32,7 +35,7 @@ public class CollectionController {
             Game game = dto.toEntity(dto);
 
             Game existingGame = em.createQuery(
-                            "SELECT g FROM Game g WHERE g.BGG_API_ID = :apiId", Game.class)
+                            "SELECT g FROM Game g WHERE g.gameId = :apiId", Game.class)
                     .setParameter("apiId", dto.getBGG_API_ID())
                     .getResultStream()
                     .findFirst()
