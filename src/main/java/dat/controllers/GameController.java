@@ -88,4 +88,27 @@ public class GameController
             ctx.status(400).result(daoException.getMessage());
         }
     }
+
+    public void searchByTitleAndCategory(@NotNull Context ctx)
+    {
+        String title = ctx.queryParam("title");
+        String category = ctx.queryParam("category");
+        if (title == null || title.isBlank() || category == null || category.isBlank())
+        {
+            ctx.status(400).result("Title and category query parameters are required");
+            return;
+        }
+        try
+        {
+            List<Game> games = boardgameDAO.searchByTitle(title).stream()
+                    .filter(game -> game.getGenres().stream()
+                            .anyMatch(genre -> genre.name().equalsIgnoreCase(category)))
+                    .toList();
+            ctx.status(200).json(games);
+        } catch (DaoException daoException)
+        {
+            logger.error(daoException.getMessage());
+            ctx.status(400).result(daoException.getMessage());
+        }
+    }
 }
