@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import dat.entities.GameList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,20 +55,30 @@ public class GenericDAO implements CrudDAO
         }
     }
 
-    public <T> T getById(Class<T> type, Object id) throws DaoException
-    {
-        try (EntityManager em = emf.createEntityManager())
-        {
+    public <T> T getById(Class<T> type, Object id) throws DaoException {
+        EntityManager em = emf.createEntityManager();
+        try {
             T entity = em.find(type, id);
-            if (entity == null)
-            {
-                throw new EntityNotFoundException("No entity found with id " + id.toString());
+
+            // If not found, just return null (no exception)
+            if (entity == null) {
+                return null;
             }
+
+            // Special handling for GameList to avoid lazy init issues on customList
+            if (entity instanceof GameList gameList) {
+
+                if (gameList.getCustomList() != null) {
+                    gameList.getCustomList().size();
+                }
+            }
+
             return entity;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Error reading object from db", e);
             throw new DaoException("Error reading object from db", e);
+        } finally {
+            em.close();
         }
     }
 

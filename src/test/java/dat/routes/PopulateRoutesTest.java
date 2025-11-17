@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
-import dat.controllers.SecurityController;
 import dat.dao.GenericDAO;
 import dat.entities.Game;
 import dat.entities.UserAccount;
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PopulateRoutesTest
 {
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static GenericDAO genericDAO;
 
     private final String TEST_USER = "testuser";
@@ -33,7 +32,6 @@ class PopulateRoutesTest
     private final String TEST_ADMIN = "testadmin";
 
     private String adminToken;
-
 
     @BeforeAll
     static void setUpAll()
@@ -49,20 +47,18 @@ class PopulateRoutesTest
                 .setApiExceptionHandling()
                 .checkSecurityRoles()
                 .startServer(7079);
+
         RestAssured.baseURI = "http://localhost:7079/api";
     }
 
     @BeforeEach
     void setUp()
     {
-        adminToken = getAdminToken();
-
         try (EntityManager em = emf.createEntityManager())
         {
             em.getTransaction().begin();
-            // Clean up existing data
-            em.createQuery("DELETE FROM UserAccount").executeUpdate();
 
+            // Clean up game-related and user-related tables
             em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
             em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
             em.createNativeQuery("DELETE FROM game_collection").executeUpdate();
@@ -88,50 +84,40 @@ class PopulateRoutesTest
 
             em.getTransaction().commit();
         }
+
+        adminToken = getAdminToken(); // ✅ after admin exists
     }
 
-    @Test
-    void testPopulateDatabaseRoles()
-    {
-        given()
-                .header("Authorization", "Bearer " + adminToken)
-                .when()
-                .post("/roles")
-                .then()
-                .statusCode(200);
+    // No more /roles test, because you don't have a /roles route in Routes
+    // @Test
+    // void testPopulateDatabaseRoles() { ... }
 
-        List<UserAccount> users = genericDAO.getAll(UserAccount.class);
-
-        assertNotNull(users);
-    }
-
-    //TODO change statusCode when endpoint does
     @Test
     void testPopulateDatabaseGames()
     {
         given()
                 .header("Authorization", "Bearer " + adminToken)
                 .when()
-                .post("/games")
+                .post("/populate/games")         // ✅ correct route
                 .then()
                 .statusCode(200);
 
         List<Game> games = genericDAO.getAll(Game.class);
 
-        //TODO Check there is something in database
         assertNotNull(games);
+        assertFalse(games.isEmpty(), "Expected games to be populated in the database");
     }
 
-    //TODO change statusCode when endpoint does
     @Test
-    void testUpdateDatabaseGames()
+    void testPopulateDevDatabaseGames()
     {
         given()
                 .header("Authorization", "Bearer " + adminToken)
                 .when()
-                .post("/games/sync")
+                .post("/populate/games/dev")    // ✅ matches Routes
                 .then()
                 .statusCode(200);
+        // Add DB assertions here if DevPopulator adds data
     }
 
     private String getAdminToken()
@@ -147,15 +133,14 @@ class PopulateRoutesTest
             throw new RuntimeException("Could not convert admin user to JSON", e);
         }
 
-        String token = given()
+        return given()
                 .contentType("application/json")
                 .body(adminJson)
                 .when()
                 .post("/auth/login")
                 .then()
                 .statusCode(200)
-                .extract().path("token");
-
-        return token;
+                .extract()
+                .path("token");
     }
 }
