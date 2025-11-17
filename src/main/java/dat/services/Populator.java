@@ -5,6 +5,8 @@ import dat.dao.GenericDAO;
 import dat.dto.GameDTO;
 import dat.entities.Game;
 import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,6 +18,7 @@ public class Populator
 {
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
     private final static GenericDAO genericDAO = new GenericDAO(emf);
+    private final static Logger logger = LoggerFactory.getLogger(Populator.class);
 
     public void testPopulator()
     {
@@ -25,7 +28,7 @@ public class Populator
     {
         try
         {
-            String csvFilePath = "src/main/java/dat/services/testdata/bgg_response_1_to_10.xml";
+            String csvFilePath = "src/main/resources/testdata/bgg_response_1_to_10.xml";
             String csvAsString = readCsvFileToString(csvFilePath);
 
             List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
@@ -37,7 +40,7 @@ public class Populator
             }
         } catch (Exception e)
         {
-            throw new RuntimeException(e);
+            logger.error("Error populating database: " + e.getMessage());
         }
     }
 
@@ -54,7 +57,8 @@ public class Populator
             }
         } catch (IOException e)
         {
-            e.printStackTrace();
+            logger.error("Error reading CSV file: " + e.getMessage());
+            content.setLength(0); // Clear content on error
         }
 
         return content.toString();
