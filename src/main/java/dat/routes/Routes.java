@@ -66,8 +66,8 @@ public class Routes
     private EndpointGroup populateRoutes()
     {
         return () -> {
-            post("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
+            post("games", adminController::populateDatabaseGames, Roles.ANYONE);
+            post("games/dev", adminController::populateDevDatabaseGames, Roles.ANYONE);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }
