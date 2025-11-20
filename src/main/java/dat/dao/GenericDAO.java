@@ -63,7 +63,7 @@ public class GenericDAO implements CrudDAO
 
             if (entity == null)
             {
-                return null;
+                throw new DaoException(type.getSimpleName() + " with id " + id + " not found");
             }
 
             if (entity instanceof GameList gameList)
