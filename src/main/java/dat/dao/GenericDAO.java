@@ -55,30 +55,31 @@ public class GenericDAO implements CrudDAO
         }
     }
 
-    public <T> T getById(Class<T> type, Object id) throws DaoException {
-        EntityManager em = emf.createEntityManager();
-        try {
+    public <T> T getById(Class<T> type, Object id) throws DaoException
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             T entity = em.find(type, id);
 
-            // If not found, just return null (no exception)
-            if (entity == null) {
+            if (entity == null)
+            {
                 return null;
             }
 
-            // Special handling for GameList to avoid lazy init issues on customList
-            if (entity instanceof GameList gameList) {
+            if (entity instanceof GameList gameList)
+            {
 
-                if (gameList.getCustomList() != null) {
+                if (gameList.getCustomList() != null)
+                {
                     gameList.getCustomList().size();
                 }
             }
 
             return entity;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error("Error reading object from db", e);
             throw new DaoException("Error reading object from db", e);
-        } finally {
-            em.close();
         }
     }
 

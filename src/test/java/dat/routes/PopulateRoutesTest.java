@@ -59,17 +59,9 @@ class PopulateRoutesTest
             em.getTransaction().begin();
 
             // Clean up game-related and user-related tables
-            em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
-            em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
-            em.createNativeQuery("DELETE FROM game_collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM collection_game").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount_collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM game").executeUpdate();
-            em.createNativeQuery("DELETE FROM collection").executeUpdate();
-            em.createNativeQuery("DELETE FROM useraccount").executeUpdate();
-
-            em.createNativeQuery("ALTER SEQUENCE game_gameid_seq RESTART WITH 1").executeUpdate();
+            em.createNativeQuery(
+                    "TRUNCATE TABLE custom_list, game_genres, useraccount_roles, gamelist, game, useraccount RESTART IDENTITY CASCADE"
+            ).executeUpdate();
 
             // Create test user with user role
             UserAccount testUserAccount = new UserAccount(TEST_USER, TEST_PASSWORD);
@@ -85,39 +77,64 @@ class PopulateRoutesTest
             em.getTransaction().commit();
         }
 
-        adminToken = getAdminToken(); // ✅ after admin exists
+        adminToken = getAdminToken();
     }
 
-    // No more /roles test, because you don't have a /roles route in Routes
-    // @Test
-    // void testPopulateDatabaseRoles() { ... }
+//TODO look at how we populate deployed app ,with roles
+
+//    @Test
+//    void testPopulateDatabaseRoles()
+//    {
+//        given()
+//                .header("Authorization", "Bearer " + adminToken)
+//                .when()
+//                .post("/populate/roles")
+//                .then()
+//                .statusCode(200);
+//
+//        List<UserAccount> users = genericDAO.getAll(UserAccount.class);
+//
+//
+//        assertEquals(Roles.USER ,users.get(0).getRoles());
+//        assertNotNull(users);
+//        adminToken = getAdminToken();
+//    }
+
+    //TODO When API Key is up check if works
+//    @Test
+//    void testPopulateDatabaseGames()
+//    {
+//        given()
+//                .header("Authorization", "Bearer " + adminToken)
+//                .when()
+//                .post("/populate/games")
+//                .then()
+//                .statusCode(200);
+//
+//        List<Game> games = genericDAO.getAll(Game.class);
+//
+//        assertNotNull(games);
+//        assertFalse(games.isEmpty(), "Expected games to be populated in the database");
+//    }
 
     @Test
-    void testPopulateDatabaseGames()
-    {
+    void testPopulateDevDatabaseGames() {
+        // Trigger API
         given()
                 .header("Authorization", "Bearer " + adminToken)
                 .when()
-                .post("/populate/games")         // ✅ correct route
+                .post("/populate/games/dev")
                 .then()
-                .statusCode(200);
+                .statusCode(201);
 
         List<Game> games = genericDAO.getAll(Game.class);
 
-        assertNotNull(games);
+        assertNotNull(games, "Games list should not be null");
         assertFalse(games.isEmpty(), "Expected games to be populated in the database");
-    }
 
-    @Test
-    void testPopulateDevDatabaseGames()
-    {
-        given()
-                .header("Authorization", "Bearer " + adminToken)
-                .when()
-                .post("/populate/games/dev")    // ✅ matches Routes
-                .then()
-                .statusCode(200);
-        // Add DB assertions here if DevPopulator adds data
+        Game firstGame = games.get(0);
+        assertNotNull(firstGame.getTitle(), "First game should have a title");
+        assertNotNull(firstGame.getGenres(), "First game should have genres");
     }
 
     private String getAdminToken()

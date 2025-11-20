@@ -37,7 +37,6 @@ public class DAOTestBase
                 em.getTransaction().begin();
 
                 em.createNativeQuery("DELETE FROM custom_list").executeUpdate();
-                em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
                 em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
                 em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
                 em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();

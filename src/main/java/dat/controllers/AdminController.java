@@ -40,5 +40,6 @@ public class AdminController
     public void populateDevDatabaseGames(Context context)
     {
         Populator.DevPopulator();
+        context.status(201);
     }
 }

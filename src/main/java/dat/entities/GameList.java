@@ -27,7 +27,7 @@ public class GameList
 
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     @JoinTable(
             name = "custom_list",
             joinColumns = @JoinColumn(name = "list_id"),
@@ -39,7 +39,7 @@ public class GameList
     private LocalDateTime createdDate;
     private boolean isPublic;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @Setter
