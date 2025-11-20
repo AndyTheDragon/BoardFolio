@@ -134,8 +134,8 @@ public class BoardGameGeekService
     private static GameDTO parseGame(JsonNode itemNode)
     {
         GameDTO game = new GameDTO();
-
-        game.setBGG_API_ID(itemNode.path("id").asLong());
+//TODO: we don't use BGG_API_ID anymore!
+//        game.setBGG_API_ID(itemNode.path("id").asLong());
         game.setTitle(getPrimaryName(itemNode.path("name")));
         game.setDescription(itemNode.path("description").asText(""));
         game.setMinNoOfPlayers(itemNode.path("minplayers").path("value").asInt(0));
