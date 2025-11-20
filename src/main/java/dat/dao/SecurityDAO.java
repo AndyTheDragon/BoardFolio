@@ -48,6 +48,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
     {
         UserAccount userAccount = new UserAccount(username, password);
         userAccount.addRole(Roles.USER);
+        userAccount.getMyCollection().setName("My collection of games");
         try
         {
             userAccount = super.create(userAccount);
