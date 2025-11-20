@@ -20,7 +20,6 @@ public class AdminController
         this.genericDAO = new GenericDAO(emf);
     }
 
-
     public void populateDatabaseGames(Context context)
     {
         try {
