@@ -12,8 +12,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Populator
@@ -29,27 +30,30 @@ public class Populator
     {
         try
         {
-            String csvFilePath = "src/main/resources/testdata/bgg_response_1_to_10.xml";
-            String csvAsString = readCsvFileToString(csvFilePath);
+            String xmlFilePath = "src/main/resources/testdata/bgg_response_1_to_10.xml";
+            String xmlAsString = readCsvFileToString(xmlFilePath);
 
-            List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
-
-            UserAccount user = new UserAccount("testUser", "test");
+            List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(xmlAsString);
 
 
-            for (GameDTO gameDTO : gameDTOS)
+            Map<Long, Game> gameMap = new HashMap<>();
+            for (GameDTO dto : gameDTOS)
             {
-                Game game = gameDTO.toEntity(gameDTO);
+                Game game = dto.toEntity(dto);
                 genericDAO.create(game);
+                gameMap.put(dto.getBGG_API_ID(), game);
             }
 
+
+            UserAccount user = new UserAccount("testUser", "test");
             user.getMyCollection().setUser(user);
             user.getMyCollection().setCreatedDate(LocalDateTime.now());
             user.getMyCollection().setName("My collection of games");
-            user.addToMyCollection(gameDTOS.get(1).toEntity(gameDTOS.get(1)));
-            user.addToMyCollection(gameDTOS.get(2).toEntity(gameDTOS.get(2)));
-            user.addToMyCollection(gameDTOS.get(5).toEntity(gameDTOS.get(5)));
 
+
+            user.addToMyCollection(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
+            user.addToMyCollection(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
+            user.addToMyCollection(gameMap.get(gameDTOS.get(5).getBGG_API_ID()));
 
             genericDAO.create(user);
 
@@ -57,16 +61,18 @@ public class Populator
             customList.setCreatedDate(LocalDateTime.now());
             user.addList(customList);
 
-            customList.addGame(gameDTOS.get(0).toEntity(gameDTOS.get(0)));
-            customList.addGame(gameDTOS.get(1).toEntity(gameDTOS.get(1)));
-            customList.addGame(gameDTOS.get(2).toEntity(gameDTOS.get(2)));
+            customList.addGame(gameMap.get(gameDTOS.get(0).getBGG_API_ID()));
+            customList.addGame(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
+            customList.addGame(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
+
             genericDAO.create(customList);
 
         } catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error in DevPopulator: " + e.getMessage(), e);
         }
     }
+
 
     public static String readCsvFileToString(String filePath)
     {

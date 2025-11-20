@@ -45,8 +45,7 @@ public class Routes
             post("/add", gameController::createGameList, Roles.ANYONE);
             put("/update/{listID}", gameController::updateList, Roles.ANYONE);
             delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
-            get("/{listID}", gameController::getGameListById, Roles.ANYONE);
-            get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE);
+            get("/list/{listID}", gameController::getGameListById, Roles.ANYONE);
 
         };
     }
@@ -66,8 +65,8 @@ public class Routes
     private EndpointGroup populateRoutes()
     {
         return () -> {
-            post("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
+            post("games", adminController::populateDatabaseGames, Roles.ANYONE);
+            post("games/dev", adminController::populateDevDatabaseGames, Roles.ANYONE);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }
