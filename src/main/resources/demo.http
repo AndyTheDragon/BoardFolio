@@ -28,7 +28,10 @@ POST localhost:7070/boardgames/api/populate/games/dev
 GET localhost:7070/api/boardgames
 
 ### Search game by title
-GET localhost:7070/games/search?title=Catan
+GET http://localhost:7070/api/games/search?title=Cathedral
 
 ### search movie based by title and category
-GET localhsot:7070/games/search?title=Catan&category=Strategy
+GET http://localhost:7070/api//games/search/title=Catan&category=Strategy
+
+### alternative endpoint
+POST localhost:7070/api/populate/games/dev
