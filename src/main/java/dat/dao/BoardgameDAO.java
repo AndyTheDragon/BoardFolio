@@ -51,8 +51,10 @@ public class BoardgameDAO
     {
         try (EntityManager em = emf.createEntityManager())
         {
+            int limit = 10;
             List<Game> entities = em.createQuery("SELECT g FROM Game g WHERE LOWER(g.title) LIKE :title", Game.class)
                                     .setParameter("title", "%" + title.toLowerCase() + "%")
+                                    .setMaxResults(limit)
                                     .getResultList();
             if (entities.isEmpty())
             {

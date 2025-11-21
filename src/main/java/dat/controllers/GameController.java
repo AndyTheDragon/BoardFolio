@@ -95,7 +95,7 @@ public class GameController
         String category = ctx.queryParam("category");
         if (title == null || title.isBlank() || category == null || category.isBlank())
         {
-            ctx.status(400).result("Title and category query parameters are required");
+            ctx.status(400).result("Title or category is invalid");
             return;
         }
         try
