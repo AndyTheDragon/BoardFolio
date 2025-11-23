@@ -41,17 +41,14 @@ public class Routes
     private EndpointGroup gameListRoutes()
     {
         return () -> {
-            get("/{username}", gameController::getGameListsForUser, Roles.ANYONE);
+            //TODO Update roles for routes
             post("/add", gameController::createGameList, Roles.ANYONE);
             put("/update/{listID}", gameController::updateList, Roles.ANYONE);
             delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
-
-            // FIXED: tidligere /list/{username}/{uuid} -> gav bug
-            // controlleren forventer listID (int)
             get("/list/{listID}", gameController::getGameListById, Roles.ANYONE);
+            get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE);
         };
     }
-
 
     private EndpointGroup authRoutes()
     {
@@ -68,12 +65,10 @@ public class Routes
     private EndpointGroup populateRoutes()
     {
         return () -> {
-            post("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
+            post("games", adminController::populateDatabaseGames, Roles.ANYONE);
+            post("games/dev", adminController::populateDevDatabaseGames, Roles.ANYONE);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }
-
-
 
 }

@@ -20,7 +20,6 @@ public class AdminController
         this.genericDAO = new GenericDAO(emf);
     }
 
-
     public void populateDatabaseGames(Context context)
     {
         try {
@@ -40,5 +39,6 @@ public class AdminController
     public void populateDevDatabaseGames(Context context)
     {
         Populator.DevPopulator();
+        context.status(201);
     }
 }

@@ -36,7 +36,7 @@ public class UserAccount
     @JsonIgnore
     private GameList myCollection = new GameList();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     @ToString.Exclude
     private List<GameList> gameLists = new ArrayList<>();
 
@@ -96,6 +96,7 @@ public class UserAccount
         }
         myCollection.addGame(newGame);
     }
+
 
     public void removeFromMyCollection(Game oldGame)
     {
