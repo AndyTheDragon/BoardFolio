@@ -3,6 +3,7 @@ package dat;
 import dat.config.ApplicationConfig;
 import dat.config.HibernateConfig;
 import dat.routes.Routes;
+import dat.services.Populator;
 import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,5 +29,7 @@ public class Main
                 .startServer(7070);
         logger.info("Server started on http://127.0.0.1:7070/api");
 
+
+        Populator.DevPopulator();
     }
 }

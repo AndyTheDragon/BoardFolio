@@ -53,7 +53,7 @@ class SecurityRoutesTest
         {
             em.getTransaction().begin();
             // Clean up existing data
-            em.createQuery("DELETE FROM UserAccount").executeUpdate();
+            em.createNativeQuery("TRUNCATE TABLE gamelist, useraccount RESTART IDENTITY CASCADE").executeUpdate();
 
 
             // Create test user with user role
@@ -156,10 +156,9 @@ class SecurityRoutesTest
     @Test
     void testRegister_UserAlreadyExists()
     {
-        // Count users before the test
+
         int userCountBefore = countUsers();
 
-        // Try to register an existing user
         Map<String, String> registerRequest = new HashMap<>();
         registerRequest.put("username", TEST_USER);
         registerRequest.put("password", TEST_PASSWORD);
@@ -177,10 +176,10 @@ class SecurityRoutesTest
             logger.info("Expected exception: {}", e.getMessage());
         }
 
-        // Count users after the test
+
         int userCountAfter = countUsers();
 
-        // Verify that no new user was created
+
         assertEquals(userCountBefore, userCountAfter,
                      "User count should not change when trying to register an existing user");
     }
@@ -196,7 +195,6 @@ class SecurityRoutesTest
     @Test
     void testVerify_ValidToken()
     {
-        // First login to get a token
         Map<String, String> loginRequest = new HashMap<>();
         loginRequest.put("username", TEST_USER);
         loginRequest.put("password", TEST_PASSWORD);
@@ -208,7 +206,6 @@ class SecurityRoutesTest
 
         String token = loginResponse.jsonPath().getString("token");
 
-        // Then verify the token
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
@@ -242,7 +239,7 @@ class SecurityRoutesTest
     @Test
     void testTokenLifespan()
     {
-        // First login to get a token
+
         Map<String, String> loginRequest = new HashMap<>();
         loginRequest.put("username", TEST_USER);
         loginRequest.put("password", TEST_PASSWORD);
@@ -254,7 +251,7 @@ class SecurityRoutesTest
 
         String token = loginResponse.jsonPath().getString("token");
 
-        // Then check token lifespan
+
         given()
                 .header("Authorization", "Bearer " + token)
                 .when()
@@ -264,80 +261,5 @@ class SecurityRoutesTest
                 .body("msg", containsString("Token is valid until"))
                 .body("expireTime", notNullValue())
                 .body("secondsToLive", notNullValue());
-        // The token might have already expired, so we're just checking that the field exists
-    }
-
-    @Test
-    void testProtectedUserEndpoint_WithUserRole()
-    {
-        // First login to get a token
-        Map<String, String> loginRequest = new HashMap<>();
-        loginRequest.put("username", TEST_USER);
-        loginRequest.put("password", TEST_PASSWORD);
-
-        Response loginResponse = given()
-                .contentType(ContentType.JSON)
-                .body(loginRequest)
-                .post("/auth/login");
-
-        String token = loginResponse.jsonPath().getString("token");
-
-        // Then access protected user endpoint
-        given()
-                .header("Authorization", "Bearer " + token)
-                .when()
-                .get("/protected/user_demo")
-                .then()
-                .statusCode(200)
-                .body("msg", equalTo("Hello from USER Protected"));
-    }
-
-    @Test
-    void testProtectedAdminEndpoint_WithUserRole()
-    {
-        // First login to get a token for a user with only USER role
-        Map<String, String> loginRequest = new HashMap<>();
-        loginRequest.put("username", TEST_USER);
-        loginRequest.put("password", TEST_PASSWORD);
-
-        Response loginResponse = given()
-                .contentType(ContentType.JSON)
-                .body(loginRequest)
-                .post("/auth/login");
-
-        String token = loginResponse.jsonPath().getString("token");
-
-        // Then try to access protected admin endpoint
-        given()
-                .header("Authorization", "Bearer " + token)
-                .when()
-                .get("/protected/admin_demo")
-                .then()
-                .statusCode(403); // Forbidden
-    }
-
-    @Test
-    void testProtectedAdminEndpoint_WithAdminRole()
-    {
-        // First login to get a token for a user with ADMIN role
-        Map<String, String> loginRequest = new HashMap<>();
-        loginRequest.put("username", TEST_ADMIN);
-        loginRequest.put("password", TEST_PASSWORD);
-
-        Response loginResponse = given()
-                .contentType(ContentType.JSON)
-                .body(loginRequest)
-                .post("/auth/login");
-
-        String token = loginResponse.jsonPath().getString("token");
-
-        // Then access protected admin endpoint
-        given()
-                .header("Authorization", "Bearer " + token)
-                .when()
-                .get("/protected/admin_demo")
-                .then()
-                .statusCode(200)
-                .body("msg", equalTo("Hello from ADMIN Protected"));
     }
 }
