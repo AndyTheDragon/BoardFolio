@@ -76,7 +76,7 @@ public class Routes
         return () -> {
             //get("/search", gameController::searchGame, Roles.ANYONE);
             get("/search/title", gameController::seearchByTitleAndCategory, Roles.ANYONE);
-            get("/search/title/releaseyear", gameController::seearchByTitleAndCategory, Roles.ANYONE);
+            get("/search/title/category", gameController::seearchByTitleAndCategory, Roles.ANYONE);
         };
     }
 
