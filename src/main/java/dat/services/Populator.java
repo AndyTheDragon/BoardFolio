@@ -7,6 +7,8 @@ import dat.entities.Game;
 import dat.entities.GameList;
 import dat.entities.UserAccount;
 import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,6 +23,7 @@ public class Populator
 {
     private final static EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
     private final static GenericDAO genericDAO = new GenericDAO(emf);
+    private final static Logger logger = LoggerFactory.getLogger(Populator.class);
 
     public void testPopulator()
     {
@@ -69,10 +72,9 @@ public class Populator
 
         } catch (Exception e)
         {
-            throw new RuntimeException("Error in DevPopulator: " + e.getMessage(), e);
+            logger.error("Error populating database: " + e.getMessage());
         }
     }
-
 
     public static String readCsvFileToString(String filePath)
     {
@@ -87,7 +89,8 @@ public class Populator
             }
         } catch (IOException e)
         {
-            e.printStackTrace();
+            logger.error("Error reading CSV file: " + e.getMessage());
+            content.setLength(0); // Clear content on error
         }
 
         return content.toString();

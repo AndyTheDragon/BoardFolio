@@ -10,8 +10,6 @@ import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
 
-import javax.management.relation.Role;
-
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
@@ -33,6 +31,7 @@ public class Routes
     {
         return () -> {
             path("list", gameListRoutes());
+            path("boardgames", boardgameRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
         };
@@ -49,6 +48,19 @@ public class Routes
             get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE);
         };
     }
+
+private EndpointGroup boardgameRoutes()
+{
+    return () -> {
+        get(gameController::getAllBoardGames);
+        get("/populate", gameController::populateBoardGames);
+            /*get("/{id}", boardgameController::getBoardGameById);
+            post(boardgameController::createBoardGame);
+            put("/{id}", boardgameController::updateBoardGame);
+            delete("/{id}", boardgameController::deleteBoardGame);
+            post("/populate", boardgameController::populateBoardGames);*/
+    };
+}
 
     private EndpointGroup authRoutes()
     {

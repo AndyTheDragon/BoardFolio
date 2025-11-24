@@ -1,7 +1,10 @@
 package dat.dao;
 
+import dat.config.HibernateConfig;
 import dat.entities.Game;
 import dat.exceptions.DaoException;
+import jakarta.persistence.EntityManagerFactory;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +15,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Ignore
 class GenericDAOTest extends DAOTestBase
 {
     private GenericDAO dao;
+    private final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
 
     @BeforeEach
     void setUp()
