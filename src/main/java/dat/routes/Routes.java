@@ -33,24 +33,25 @@ public class Routes
     public EndpointGroup getRoutes()
     {
         return () -> {
-            path("trips", tripRoutes());
+            path("boardgames", boardgameRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
         };
     }
 
-    private EndpointGroup tripRoutes()
-    {
-        return () -> {
-            /*get(tripController::getAllTrips);
-            get("/{id}", tripController::getTripById);
-            post(tripController::createTrip);
-            put("/{id}", tripController::updateTrip);
-            delete("/{id}", tripController::deleteTrip);
-            put("/{tripId}/guides/{guideId}", tripController::addGuideToTrip);
-            post("/populate", tripController::populate);*/
-        };
-    }
+
+private EndpointGroup boardgameRoutes()
+{
+    return () -> {
+        get(gameController::getAllBoardGames);
+        get("/populate", gameController::populateBoardGames);
+            /*get("/{id}", boardgameController::getBoardGameById);
+            post(boardgameController::createBoardGame);
+            put("/{id}", boardgameController::updateBoardGame);
+            delete("/{id}", boardgameController::deleteBoardGame);
+            post("/populate", boardgameController::populateBoardGames);*/
+    };
+}
 
     private EndpointGroup authRoutes()
     {
