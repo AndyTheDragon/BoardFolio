@@ -46,4 +46,25 @@ public class BoardgameDAO
             throw new DaoException("Error reading objects from db", e);
         }
     }
+
+    public List<Game> searchByTitle(String title) throws DaoException
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
+            int limit = 10;
+            List<Game> entities = em.createQuery("SELECT g FROM Game g WHERE LOWER(g.title) LIKE :title", Game.class)
+                                    .setParameter("title", "%" + title.toLowerCase() + "%")
+                                    .setMaxResults(limit)
+                                    .getResultList();
+            if (entities.isEmpty())
+            {
+                logger.debug("No entities found in db matching title: {}", title);
+            }
+            return entities;
+        } catch (Exception e)
+        {
+            logger.error("Error searching objects from db", e);
+            throw new DaoException("Error searching objects from db", e);
+        }
+    }
 }
