@@ -76,8 +76,9 @@ public class Routes
     private EndpointGroup gameRoutes()
     {
         return () -> {
-            get("/search", gameController::searchGame, Roles.ANYONE);
-            get("/search/title", gameController::searchByTitleAndCategory, Roles.ANYONE);
+            //get("/search", gameController::searchGame, Roles.ANYONE);
+            get("/search/title", gameController::searchByTitleAndReleaseYear, Roles.ANYONE);
+            get("/search/title/releaseyear", gameController::searchByTitleAndReleaseYear, Roles.ANYONE);
         };
     }
 

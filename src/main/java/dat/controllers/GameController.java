@@ -7,7 +7,6 @@ import dat.dto.ErrorMessage;
 import dat.dto.GameListDTO;
 import dat.entities.Game;
 import dat.entities.GameList;
-import dat.entities.UserAccount;
 import dat.enums.Genre;
 import dat.exceptions.DaoException;
 import io.javalin.http.Context;
@@ -48,13 +47,13 @@ public class GameController
             genres.add(STRATEGY);
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .releaseYear(1995)
-                    .genres(genres)
-                    .build();
+                .title("Catan")
+                .description("Trade, build, and settle the island of Catan in this classic board game.")
+                .minNoOfPlayers(3)
+                .maxNoOfPlayers(4)
+                .releaseYear(1995)
+                .genres(genres)
+                .build();
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);
@@ -80,46 +79,6 @@ public class GameController
         }
     }
 
-    public void searchGame(@NotNull Context ctx)
-    {
-        String title = ctx.queryParam("title");
-        if (title == null || title.isBlank())
-        {
-            ctx.status(400).result("Title query parameter is required");
-            return;
-        }
-        try
-        {
-            Game game = boardgameDAO.searchByTitle(title).stream().findFirst().orElse(null);
-            ctx.status(200).json(game);
-        } catch (DaoException daoException)
-        {
-            logger.error(daoException.getMessage());
-            ctx.status(400).result(daoException.getMessage());
-        }
-    }
-
-    public void searchByTitleAndCategory(@NotNull Context ctx)
-    {
-        String title = ctx.queryParam("title");
-        String category = ctx.queryParam("category");
-        if (title == null || title.isBlank() || category == null || category.isBlank())
-        {
-            ctx.status(400).result("Title or category is invalid");
-            return;
-        }
-        try
-        {
-            List<Game> games = boardgameDAO.searchByTitle(title).stream()
-                    .filter(game -> game.getGenres().stream()
-                            .anyMatch(genre -> genre.name().equalsIgnoreCase(category)))
-                    .toList();
-            ctx.status(200).json(games);
-        } catch (DaoException daoException)
-        {
-            logger.error(daoException.getMessage());
-            ctx.status(400).result(daoException.getMessage());
-        }
     public void getGameListsForUser(@NotNull Context ctx)
     {
         String username = ctx.pathParam("username");
@@ -167,7 +126,66 @@ public class GameController
         databaseGameList.setPublic(gameListToUpdate.isPublic());
 
         genericDAO.update(databaseGameList);
-
-        ctx.status(200).json("Game list updated");
+        //TODO: response has to be valid json like this
+        ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
+
+    public void getGameListById(@NotNull Context ctx)
+    {
+        int listID = Integer.parseInt(ctx.pathParam("listID"));
+        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+
+        if (databaseGameList == null)
+        {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
+        ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
+    }
+
+    public void searchByTitle(@NotNull Context ctx)
+    {
+        String title = ctx.queryParam("title");
+
+        List<Game> results = new ArrayList<>();
+
+        try
+        {
+            results = boardgameDAO.searchByTitle(title);
+            ctx.status(200).json(results);
+        } catch (DaoException daoException)
+        {
+            logger.error(daoException.getMessage());
+            ctx.status(400).result(daoException.getMessage());
+        }
+    }
+    public void searchByTitleAndReleaseYear(@NotNull Context ctx)
+    {
+        String title = ctx.queryParam("title");
+        String releaseYear = String.valueOf(Integer.parseInt(ctx.queryParam("releaseyear")));
+
+        List<Game> results = new ArrayList<>();
+
+        try
+        {
+            if (releaseYear != null && results.isEmpty())
+            {
+                results = boardgameDAO.searchByTitle(title);
+                // check if category exists in results
+                results = results.stream()
+                                 .filter(game -> game.getReleaseYear()
+                                     == Integer.parseInt(releaseYear))
+                                    .collect(Collectors.toList());
+                ctx.status(200).json(results);
+                return;
+            }
+            results = boardgameDAO.searchByTitle(title);
+            ctx.status(200).json(results);
+        } catch (DaoException daoException)
+        {
+            logger.error(daoException.getMessage());
+            ctx.status(400).result(daoException.getMessage());
+        }
+    }
+
 }

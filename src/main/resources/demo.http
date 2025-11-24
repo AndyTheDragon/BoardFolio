@@ -31,7 +31,8 @@ GET localhost:7070/api/boardgames
 GET http://localhost:7070/api/games/search?title=Cathedral
 
 ### search movie based by title and category
-GET http://localhost:7070/api//games/search/title=Catan&category=Strategy
+GET http://localhost:7070/api/games/search/title=DragonMaster&releaseyear=1981
 
 ### alternative endpoint
 POST localhost:7070/api/populate/games/dev
+
