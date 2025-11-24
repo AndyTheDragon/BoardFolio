@@ -159,22 +159,23 @@ public class GameController
             ctx.status(400).result(daoException.getMessage());
         }
     }
-    public void searchByTitleAndReleaseYear(@NotNull Context ctx)
+    public void seearchByTitleAndCategory(@NotNull Context ctx)
     {
         String title = ctx.queryParam("title");
-        String releaseYear = String.valueOf(Integer.parseInt(ctx.queryParam("releaseyear")));
+        String category = ctx.queryParam("genres");
 
         List<Game> results = new ArrayList<>();
 
         try
         {
-            if (releaseYear != null && results.isEmpty())
+            if (category != null && results.isEmpty())
             {
                 results = boardgameDAO.searchByTitle(title);
                 // check if category exists in results
                 results = results.stream()
-                                 .filter(game -> game.getReleaseYear()
-                                     == Integer.parseInt(releaseYear))
+                                 .filter(game -> game.getGenres()
+                                                        .stream()
+                                                        .allMatch(genre -> genre.name().equalsIgnoreCase(category)))
                                     .collect(Collectors.toList());
                 ctx.status(200).json(results);
                 return;

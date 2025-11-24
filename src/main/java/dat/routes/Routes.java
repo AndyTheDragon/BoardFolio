@@ -10,8 +10,6 @@ import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
 
-import javax.management.relation.Role;
-
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
@@ -77,8 +75,8 @@ public class Routes
     {
         return () -> {
             //get("/search", gameController::searchGame, Roles.ANYONE);
-            get("/search/title", gameController::searchByTitleAndReleaseYear, Roles.ANYONE);
-            get("/search/title/releaseyear", gameController::searchByTitleAndReleaseYear, Roles.ANYONE);
+            get("/search/title", gameController::seearchByTitleAndCategory, Roles.ANYONE);
+            get("/search/title/releaseyear", gameController::seearchByTitleAndCategory, Roles.ANYONE);
         };
     }
 
