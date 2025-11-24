@@ -31,7 +31,7 @@ GET localhost:7070/api/boardgames
 GET http://localhost:7070/api/games/search?title=Cathedral
 
 ### search movie based by category
-GET http://localhost:7070/api/games/search?title=DragonMaster&category=Fantasy
+GET http://localhost:7070/api/games/search?title=D
 
 ### search movie based by title and category
 GET http://localhost:7070/api/games/search/category?title=DragonMaster&Category=Fantasy
