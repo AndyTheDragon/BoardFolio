@@ -84,7 +84,11 @@ public class GameController
 
         List<GameList> gameLists = gameListDAO.getUserWithGameLists(username);
 
-        ctx.json(gameLists);
+        if (gameLists == null) {
+            gameLists = java.util.Collections.emptyList();
+        }
+
+        ctx.status(200).json(gameLists);
     }
 
     public void deleteUserList(@NotNull Context ctx)
@@ -108,7 +112,13 @@ public class GameController
     {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
-        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+        GameList databaseGameList;
+        try {
+            databaseGameList = genericDAO.getById(GameList.class, listID);
+        } catch (Exception e) {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
 
         if (databaseGameList == null)
         {
@@ -117,7 +127,6 @@ public class GameController
         }
 
         GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
-
         GameList gameListToUpdate = gameListDTO.toEntity(gameListDTO);
 
         databaseGameList.setName(gameListToUpdate.getName());
@@ -125,21 +134,33 @@ public class GameController
         databaseGameList.setPublic(gameListToUpdate.isPublic());
 
         genericDAO.update(databaseGameList);
-        //TODO: response has to be valid json like this
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
 
     public void getGameListById(@NotNull Context ctx)
     {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
-        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
 
-        if (databaseGameList == null)
-        {
+        GameList gl;
+        try {
+            gl = genericDAO.getById(GameList.class, listID);
+        } catch (Exception e) {
             ctx.status(404).json(new ErrorMessage("Game list not found"));
             return;
         }
-        ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
+
+        if (gl == null) {
+            ctx.status(404).json(new ErrorMessage("Game list not found"));
+            return;
+        }
+
+        // 🔹 Tving lazy collection til at loade, mens sessionen stadig er åben
+        gl.getCustomList().size();
+
+        // 🔹 Brug din nuværende toDTO-signatur (med 1 parameter)
+        GameListDTO dto = gl.toDTO(gl);
+
+        ctx.status(200).json(dto);
     }
 
 }

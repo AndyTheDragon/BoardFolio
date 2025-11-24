@@ -3,10 +3,7 @@ package dat.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dat.enums.Roles;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
@@ -30,6 +27,7 @@ public class UserAccount
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
 
+    @Setter
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
@@ -123,4 +121,5 @@ public class UserAccount
         gameLists.remove(list);
         list.setUser(null);
     }
+
 }
