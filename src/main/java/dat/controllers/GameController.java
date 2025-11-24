@@ -118,15 +118,20 @@ public class GameController
             return;
         }
 
-        GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
+        GameListDTO listDto = ctx.bodyAsClass(GameListDTO.class);
 
-        GameList gameListToUpdate = gameListDTO.toEntity(gameListDTO);
+        GameList updatedList = listDto.toEntityWithoutGames(listDto);
 
-        databaseGameList.setName(gameListToUpdate.getName());
-        databaseGameList.setCustomList(gameListToUpdate.getCustomList());
-        databaseGameList.setPublic(gameListToUpdate.isPublic());
+// convert game IDs → real Game entities from DB
+        Set<Game> realGames = listDto.getCustomList().stream()
+                .map(gdto -> genericDAO.getById(Game.class, gdto.getBGG_API_ID()))
+                .collect(Collectors.toSet());
 
-        genericDAO.update(databaseGameList);
+        updatedList.setCustomList(realGames);
+
+// now merge
+        genericDAO.update(updatedList);
+
         //TODO: response has to be valid json like this
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
