@@ -5,6 +5,7 @@ import dat.dto.GameDTO;
 import dat.dto.GameListDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Builder
 @Setter
 @ToString
+@DynamicUpdate
 public class GameList
 {
 
