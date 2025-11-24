@@ -146,14 +146,25 @@ public class GameController
     public void searchByTitle(@NotNull Context ctx)
     {
         String title = ctx.queryParam("title");
+        String category = ctx.queryParam("genres");
 
         List<Game> results = new ArrayList<>();
 
         try
         {
             results = boardgameDAO.searchByTitle(title);
-            ctx.status(200).json(results);
-        } catch (DaoException daoException)
+            if (category != null && results.isEmpty())
+            {
+                results = boardgameDAO.searchByTitle(title);
+                // check if category exists in results
+                results = results.stream()
+                    .filter(game -> game.getGenres()
+                        .stream()
+                        .allMatch(genre -> genre.name().equalsIgnoreCase(category)))
+                    .collect(Collectors.toList());
+            }
+                ctx.status(200).json(results);
+        }catch (DaoException daoException)
         {
             logger.error(daoException.getMessage());
             ctx.status(400).result(daoException.getMessage());
