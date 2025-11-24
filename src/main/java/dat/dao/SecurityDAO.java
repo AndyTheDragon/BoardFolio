@@ -26,6 +26,11 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
     {
 
         UserAccount userAccount = super.getById(UserAccount.class, username); //Throws DaoException if user not found
+        if (userAccount == null) {
+            // Her signalerer du “user ikke fundet”
+            throw new DaoException("User with username '" + username + "' not found");
+        }
+
         if (!userAccount.verifyPassword(password))
         {
             logger.error("{} {}", userAccount.getUsername(), userAccount.getPassword());
@@ -43,6 +48,7 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
     {
         UserAccount userAccount = new UserAccount(username, password);
         userAccount.addRole(Roles.USER);
+        userAccount.getMyCollection().setName("My collection of games");
         try
         {
             userAccount = super.create(userAccount);

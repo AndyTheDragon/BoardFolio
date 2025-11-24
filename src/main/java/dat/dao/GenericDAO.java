@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import dat.entities.GameList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +60,21 @@ public class GenericDAO implements CrudDAO
         try (EntityManager em = emf.createEntityManager())
         {
             T entity = em.find(type, id);
+
             if (entity == null)
             {
-                throw new EntityNotFoundException("No entity found with id " + id.toString());
+                throw new DaoException(type.getSimpleName() + " with id " + id + " not found");
             }
+
+            if (entity instanceof GameList gameList)
+            {
+
+                if (gameList.getCustomList() != null)
+                {
+                    gameList.getCustomList().size();
+                }
+            }
+
             return entity;
         } catch (Exception e)
         {

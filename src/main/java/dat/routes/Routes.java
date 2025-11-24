@@ -30,12 +30,24 @@ public class Routes
     public EndpointGroup getRoutes()
     {
         return () -> {
+            path("list", gameListRoutes());
             path("boardgames", boardgameRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
         };
     }
 
+    private EndpointGroup gameListRoutes()
+    {
+        return () -> {
+            //TODO Update roles for routes
+            post("/add", gameController::createGameList, Roles.ANYONE);
+            put("/update/{listID}", gameController::updateList, Roles.ANYONE);
+            delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
+            get("/list/{listID}", gameController::getGameListById, Roles.ANYONE);
+            get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE);
+        };
+    }
 
 private EndpointGroup boardgameRoutes()
 {
@@ -65,8 +77,8 @@ private EndpointGroup boardgameRoutes()
     private EndpointGroup populateRoutes()
     {
         return () -> {
-            post("games", adminController::populateDatabaseGames, Roles.ADMIN);
-            post("games/dev", adminController::populateDevDatabaseGames, Roles.ADMIN);
+            post("games", adminController::populateDatabaseGames, Roles.ANYONE);
+            post("games/dev", adminController::populateDevDatabaseGames, Roles.ANYONE);
 //            put("games/sync", adminController::updateDatabaseGames, Role.ADMIN);
         };
     }

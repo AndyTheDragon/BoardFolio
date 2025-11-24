@@ -38,14 +38,9 @@ public class DAOTestBase
             {
                 em.getTransaction().begin();
 
-                em.createNativeQuery("DELETE FROM custom_list").executeUpdate();
-                em.createNativeQuery("DELETE FROM game_languages").executeUpdate();
-                em.createNativeQuery("DELETE FROM game_genres").executeUpdate();
-                em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-                em.createNativeQuery("DELETE FROM useraccount_roles").executeUpdate();
-                em.createQuery("DELETE FROM GameList").executeUpdate();
-                em.createQuery("DELETE FROM Game").executeUpdate();
-                em.createQuery("DELETE FROM UserAccount").executeUpdate();
+                em.createNativeQuery(
+                        "TRUNCATE TABLE custom_list, game_genres, useraccount_roles, gamelist, game, useraccount RESTART IDENTITY CASCADE"
+                ).executeUpdate();
 
 
                 em.getTransaction().commit();

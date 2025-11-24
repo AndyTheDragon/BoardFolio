@@ -29,7 +29,7 @@ class GenericDAOTest extends DAOTestBase
         dao = new GenericDAO(emf);
     }
 
-    // ---------- helpers ----------
+
     private Game makeGame(String title)
     {
         Game g = new Game();
@@ -45,7 +45,7 @@ class GenericDAOTest extends DAOTestBase
         return g;
     }
 
-    // ---------- tests ----------
+
 
     @Test
     void create_shouldAssignId() throws DaoException
@@ -132,7 +132,6 @@ class GenericDAOTest extends DAOTestBase
         batch.add(dao.create(makeGame("BatchUpdate-1")));
         batch.add(dao.create(makeGame("BatchUpdate-2")));
 
-        // change titles
         batch.get(0).setTitle("BatchUpdate-1-updated");
         batch.get(1).setTitle("BatchUpdate-2-updated");
 

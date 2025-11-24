@@ -4,6 +4,8 @@ import dat.config.HibernateConfig;
 import dat.dao.GenericDAO;
 import dat.dto.GameDTO;
 import dat.entities.Game;
+import dat.entities.GameList;
+import dat.entities.UserAccount;
 import jakarta.persistence.EntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,10 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Populator
@@ -28,16 +33,43 @@ public class Populator
     {
         try
         {
-            String csvFilePath = "src/main/resources/testdata/bgg_response_1_to_10.xml";
-            String csvAsString = readCsvFileToString(csvFilePath);
+            String xmlFilePath = "src/main/resources/testdata/bgg_response_1_to_10.xml";
+            String xmlAsString = readCsvFileToString(xmlFilePath);
 
-            List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(csvAsString);
+            List<GameDTO> gameDTOS = BoardGameGeekService.parseBatchOfGames(xmlAsString);
 
-            for (GameDTO gameDTO : gameDTOS)
+
+            Map<Long, Game> gameMap = new HashMap<>();
+            for (GameDTO dto : gameDTOS)
             {
-                Game game = gameDTO.toEntity(gameDTO);
+                Game game = dto.toEntity(dto);
                 genericDAO.create(game);
+                gameMap.put(dto.getBGG_API_ID(), game);
             }
+
+
+            UserAccount user = new UserAccount("testUser", "test");
+            user.getMyCollection().setUser(user);
+            user.getMyCollection().setCreatedDate(LocalDateTime.now());
+            user.getMyCollection().setName("My collection of games");
+
+
+            user.addToMyCollection(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
+            user.addToMyCollection(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
+            user.addToMyCollection(gameMap.get(gameDTOS.get(5).getBGG_API_ID()));
+
+            genericDAO.create(user);
+
+            GameList customList = new GameList("test");
+            customList.setCreatedDate(LocalDateTime.now());
+            user.addList(customList);
+
+            customList.addGame(gameMap.get(gameDTOS.get(0).getBGG_API_ID()));
+            customList.addGame(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
+            customList.addGame(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
+
+            genericDAO.create(customList);
+
         } catch (Exception e)
         {
             logger.error("Error populating database: " + e.getMessage());

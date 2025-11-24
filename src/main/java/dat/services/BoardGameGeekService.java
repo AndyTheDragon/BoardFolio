@@ -30,14 +30,14 @@ public class BoardGameGeekService
             "BGG_API_KEY"); //TODO setup API Key as a secret system variable
     // The max number of IDs from BGG
     //TODO 457416 is the actual MAX_ID, 100 is for testing!
-    // private static final Long MAX_ID = 457416L;
+    // private static final Long MAX_ID = 170320L;
     private static final Long MAX_ID = 100L;
     // The max number of games per request
     private static final int BATCH_SIZE = 20;
     // BGGs min rate limit per request
     private static final int RATE_LIMIT_MS = 5000;
     // Path to CSV file
-    private static final String CSV_PATH = "src/main/java/dat/services/testdata/boardgames_ranks.csv";
+    private static final String CSV_PATH = "src/main/resources/testdata/boardgames_ranks.csv";
 
     // Public method to start fetching all games
     public static List<GameDTO> fetchAllGames()
@@ -134,8 +134,8 @@ public class BoardGameGeekService
     private static GameDTO parseGame(JsonNode itemNode)
     {
         GameDTO game = new GameDTO();
-
-        game.setBGG_API_ID(itemNode.path("id").asLong());
+//TODO: we don't use BGG_API_ID anymore!
+//        game.setBGG_API_ID(itemNode.path("id").asLong());
         game.setTitle(getPrimaryName(itemNode.path("name")));
         game.setDescription(itemNode.path("description").asText(""));
         game.setMinNoOfPlayers(itemNode.path("minplayers").path("value").asInt(0));
@@ -171,7 +171,7 @@ public class BoardGameGeekService
             List<Long> ids = getValidBGGIds(CSV_PATH);
             List<String> uris = new ArrayList<>();
 
-            for (int i = 0; i < MAX_ID; i += BATCH_SIZE)
+            for (int i = 0; i < ids.size(); i += BATCH_SIZE)
             {
                 List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
                 StringBuilder sb = new StringBuilder(BGG_URI);
