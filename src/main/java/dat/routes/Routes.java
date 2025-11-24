@@ -37,6 +37,7 @@ public class Routes
             path("boardgames", boardgameRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
+            path("collection", collectionRoutes());
         };
     }
 
@@ -88,9 +89,9 @@ private EndpointGroup boardgameRoutes()
 
     private EndpointGroup collectionRoutes() {
         return () -> {
-            put("/collection/add", collectionController::addToCollection, Roles.ANYONE);
-            delete("/collection/remove", collectionController::removeFromCollection, Roles.ANYONE);
-            get("/collection/get", collectionController::getCollection, Roles.ANYONE);
+            put("/add", collectionController::addToCollection, Roles.ANYONE);
+            delete("/remove", collectionController::removeFromCollection, Roles.ANYONE);
+            get("/get", collectionController::getCollection, Roles.ANYONE);
         };
     }
 

@@ -1,115 +1,90 @@
 package dat.controllers;
 
-import dat.dto.GameDTO;
-import dat.entities.Game;
-import dat.entities.GameList;
-import dat.entities.UserAccount;
+import dat.dao.CollectionDAO;
 import io.javalin.http.Context;
-import io.javalin.http.NotFoundResponse;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
 public class CollectionController {
 
-    private final EntityManagerFactory emf;
+    private final CollectionDAO dao;
 
     public CollectionController(EntityManagerFactory emf) {
-        this.emf = emf;
+        this.dao = new CollectionDAO(emf);
+    }
+
+    public void getCollection(Context ctx) {
+        String username = ctx.queryParam("username");
+
+        if (username == null || username.isBlank()) {
+            ctx.status(400).json("Username is required");
+            return;
+        }
+
+        try {
+            var collection = dao.getCollection(username);
+            ctx.json(collection.getCustomList());
+        } catch (IllegalArgumentException e) {
+            ctx.status(404).json(e.getMessage());
+        }
     }
 
     public void addToCollection(Context ctx) {
         String username = ctx.queryParam("username");
-        GameDTO dto = ctx.bodyAsClass(GameDTO.class);
+        String gameIdStr = ctx.queryParam("gameId");
 
-        EntityManager em = emf.createEntityManager();
+        if (username == null || username.isBlank()) {
+            ctx.status(400).json("Username is required");
+            return;
+        }
+
+        if (gameIdStr == null) {
+            ctx.status(400).json("gameId is required");
+            return;
+        }
+
+        long gameId;
         try {
-            em.getTransaction().begin();
+            gameId = Long.parseLong(gameIdStr);
+        } catch (NumberFormatException e) {
+            ctx.status(400).json("Invalid gameId format");
+            return;
+        }
 
-            UserAccount user = em.find(UserAccount.class, username);
-            if (user == null) {
-                throw new NotFoundResponse("User not found: " + username);
-            }
-
-            GameList collection = user.getMyCollection();
-
-            Game game = dto.toEntity(dto);
-
-            Game existingGame = em.createQuery(
-                            "SELECT g FROM Game g WHERE g.gameId = :apiId", Game.class)
-                    .setParameter("apiId", dto.getBGG_API_ID())
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
-
-            Game persistentGame;
-            if (existingGame != null) {
-                persistentGame = existingGame;
-            } else {
-                em.persist(game);
-                persistentGame = game;
-            }
-
-            collection.addGame(persistentGame);
-
-            em.merge(user);
-
-            em.getTransaction().commit();
-            ctx.json(collection);
-
-        } finally {
-            em.close();
+        try {
+            var collection = dao.addGame(username, gameId);
+            ctx.json(collection.getCustomList());
+        } catch (IllegalArgumentException e) {
+            ctx.status(404).json(e.getMessage());
         }
     }
 
     public void removeFromCollection(Context ctx) {
         String username = ctx.queryParam("username");
-        long gameId = Long.parseLong(ctx.queryParam("gameId"));
+        String gameIdStr = ctx.queryParam("gameId");
 
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-
-            UserAccount user = em.find(UserAccount.class, username);
-            if (user == null) {
-                throw new NotFoundResponse("User not found");
-            }
-
-            GameList collection = user.getMyCollection();
-
-            Game game = em.find(Game.class, gameId);
-            if (game == null) {
-                throw new NotFoundResponse("Game not found");
-            }
-
-            collection.removeGame(game);
-
-            em.merge(user);
-
-            em.getTransaction().commit();
-            ctx.json(collection);
-
-        } finally {
-            em.close();
+        if (username == null || username.isBlank()) {
+            ctx.status(400).json("Username is required");
+            return;
         }
-    }
 
-    public void getCollection(Context ctx)
-    {
-        String username = ctx.queryParam("username");
+        if (gameIdStr == null) {
+            ctx.status(400).json("gameId is required");
+            return;
+        }
 
-        EntityManager em = emf.createEntityManager();
+        long gameId;
         try {
-            UserAccount user = em.find(UserAccount.class, username);
-            if (user == null) {
-                throw new NotFoundResponse("User not found");
-            }
-            GameList collection = user.getMyCollection();
+            gameId = Long.parseLong(gameIdStr);
+        } catch (NumberFormatException e) {
+            ctx.status(400).json("Invalid gameId format");
+            return;
+        }
 
-            collection.getCustomList().size();
-
+        try {
+            var collection = dao.removeGame(username, gameId);
             ctx.json(collection.getCustomList());
-        } finally {
-            em.close();
+        } catch (IllegalArgumentException e) {
+            ctx.status(404).json(e.getMessage());
         }
     }
 }
