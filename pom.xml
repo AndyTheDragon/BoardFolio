@@ -12,6 +12,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <postgres.version>42.7.5</postgres.version>
         <hibernate.version>6.6.6.Final</hibernate.version>
         <javalin.version>6.7.0</javalin.version>
@@ -21,9 +22,12 @@
         <jackson.version>2.20.0</jackson.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <token.security.version>1.0.4</token.security.version>
+
         <junit.version>5.12.0</junit.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <restAssured.version>5.5.6</restAssured.version>
+
+        <hamcrest>2.2</hamcrest>
 
     </properties>
 
@@ -35,7 +39,7 @@
     </repositories>
 
     <dependencies>
-        <!--  DB    -->
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -45,7 +49,7 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version>
+            <version>${hamcrest}</version>
             <scope>test</scope>
         </dependency>
 
@@ -55,15 +59,14 @@
             <version>${hibernate.version}</version>
         </dependency>
 
-        <!--  Javalin    -->
+        <!-- Javalin -->
         <dependency>
             <groupId>io.javalin</groupId>
             <artifactId>javalin</artifactId>
             <version>${javalin.version}</version>
         </dependency>
 
-
-        <!--  Logging    -->
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -80,7 +83,7 @@
             <version>${logback.version}</version>
         </dependency>
 
-        <!--  LOMBOK    -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -88,25 +91,24 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Jackson for JSON handling -->
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version> <!-- or the latest version -->
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version> <!-- or the latest version -->
+            <version>${jackson.version}</version>
         </dependency>
-        <!--        Jackson for XML handling-->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 
-        <!--  Security  -->
+        <!-- Security -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
@@ -118,7 +120,7 @@
             <version>${token.security.version}</version>
         </dependency>
 
-        <!--  TESTING      -->
+        <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -137,10 +139,11 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${restAssured.version}</version> <!-- Use the latest version available -->
+            <version>${restAssured.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -150,8 +153,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Integration test with test containers -->
-
+        <!-- Testcontainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -186,8 +188,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version> <!-- Make sure to use a version that supports JUnit 5 -->
+                <version>3.5.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -197,19 +200,20 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <outputFile>${project.build.directory}/app.jar
-                    </outputFile> <!-- Directly specifies app.jar as the output file -->
+                    <outputFile>${project.build.directory}/app.jar</outputFile>
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>${project.groupId}.Main</mainClass>
                         </transformer>
                     </transformers>
+
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
@@ -222,6 +226,7 @@
                         </filter>
                     </filters>
                 </configuration>
+
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -230,6 +235,7 @@
                         </goals>
                     </execution>
                 </executions>
+
             </plugin>
         </plugins>
 

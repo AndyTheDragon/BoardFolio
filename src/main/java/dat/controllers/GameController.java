@@ -19,29 +19,24 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static dat.enums.Genre.STRATEGY;
 
-public class GameController
-{
+public class GameController {
 
     private final GenericDAO genericDAO;
     private final BoardgameDAO boardgameDAO;
     private final GameListDAO gameListDAO;
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    public GameController(EntityManagerFactory emf)
-    {
+    public GameController(EntityManagerFactory emf) {
         this.genericDAO = new GenericDAO(emf);
         this.boardgameDAO = new BoardgameDAO(emf);
         this.gameListDAO = new GameListDAO(emf);
     }
 
-    public void populateBoardGames(@NotNull Context context)
-    {
-        try
-        {
+    public void populateBoardGames(@NotNull Context context) {
+        try {
             Set<Genre> genres = new HashSet<>();
             genres.add(STRATEGY);
 
@@ -56,30 +51,25 @@ public class GameController
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);
-        } catch (DaoException daoException)
-        {
+        } catch (DaoException daoException) {
             logger.error(daoException.getMessage());
             context.status(400).result(daoException.getMessage());
         }
     }
 
-    public void getAllBoardGames(@NotNull Context ctx)
-    {
+    public void getAllBoardGames(@NotNull Context ctx) {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(0);
         int pageSize = ctx.queryParamAsClass("pageSize", Integer.class).getOrDefault(25);
-        try
-        {
+        try {
             List<Game> boardGameList = boardgameDAO.getBoardgames(page, pageSize);
             ctx.status(200).json(boardGameList);
-        } catch (DaoException | IllegalArgumentException exception)
-        {
+        } catch (DaoException | IllegalArgumentException exception) {
             logger.error(exception.getMessage());
             ctx.status(400).result(exception.getMessage());
         }
     }
 
-    public void getGameListsForUser(@NotNull Context ctx)
-    {
+    public void getGameListsForUser(@NotNull Context ctx) {
         String username = ctx.pathParam("username");
 
         List<GameList> gameLists = gameListDAO.getUserWithGameLists(username);
@@ -91,14 +81,12 @@ public class GameController
         ctx.status(200).json(gameLists);
     }
 
-    public void deleteUserList(@NotNull Context ctx)
-    {
+    public void deleteUserList(@NotNull Context ctx) {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
         gameListDAO.deleteListFromUser(listID);
     }
 
-    public void createGameList(@NotNull Context ctx)
-    {
+    public void createGameList(@NotNull Context ctx) {
         GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
         // sets a timestamp for when list was created
         gameListDTO.setCreatedDate(LocalDateTime.now());
@@ -108,20 +96,17 @@ public class GameController
         genericDAO.create(gameLists);
     }
 
-    public void updateList(@NotNull Context ctx)
-    {
+    public void updateList(@NotNull Context ctx) {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
-        GameList databaseGameList;
+        GameList databaseGameList = null;
         try {
             databaseGameList = genericDAO.getById(GameList.class, listID);
         } catch (Exception e) {
-            ctx.status(404).json(new ErrorMessage("Game list not found"));
-            return;
+            logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
         }
 
-        if (databaseGameList == null)
-        {
+        if (databaseGameList == null) {
             ctx.status(404).json(new ErrorMessage("Game list not found"));
             return;
         }
@@ -137,16 +122,14 @@ public class GameController
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
 
-    public void getGameListById(@NotNull Context ctx)
-    {
+    public void getGameListById(@NotNull Context ctx) {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
-        GameList gl;
+        GameList gl = null;
         try {
             gl = genericDAO.getById(GameList.class, listID);
         } catch (Exception e) {
-            ctx.status(404).json(new ErrorMessage("Game list not found"));
-            return;
+            logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
         }
 
         if (gl == null) {
@@ -154,10 +137,8 @@ public class GameController
             return;
         }
 
-        // 🔹 Tving lazy collection til at loade, mens sessionen stadig er åben
         gl.getCustomList().size();
 
-        // 🔹 Brug din nuværende toDTO-signatur (med 1 parameter)
         GameListDTO dto = gl.toDTO(gl);
 
         ctx.status(200).json(dto);

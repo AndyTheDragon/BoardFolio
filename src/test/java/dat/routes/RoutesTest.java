@@ -35,20 +35,17 @@ class RoutesTest {
     }
 
     @BeforeEach
-    void seedFreshData() {
+    void StartFreshData() {
         try (EntityManager em = emf.createEntityManager()) {
 
             em.getTransaction().begin();
 
-            // Ryd databasen før hver test
             em.createQuery("DELETE FROM GameList").executeUpdate();
             em.createQuery("DELETE FROM UserAccount").executeUpdate();
 
-            // Opret en testbruger
             UserAccount user = new UserAccount("testUser", "1234");
             user.setMyCollection(null);
 
-            // Opret en default liste brugeren ejer
             GameList list = new GameList("Oprettet Liste");
             list.setUser(user);
             user.getGameLists().add(list);
@@ -60,14 +57,10 @@ class RoutesTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // TEST — GET /list/user/{username}
-    // -------------------------------------------------------------------------
     @Test
     void getGameListsForUser_realDataTest() {
         given()
                 .when()
-                // ÆNDRING: tilføj "/list" foran /user
                 .get("/list/user/testUser")
                 .then()
                 .statusCode(200)
@@ -75,11 +68,8 @@ class RoutesTest {
                 .body("[0].name", equalTo("Oprettet Liste"));
     }
 
-    // -------------------------------------------------------------------------
-    // TEST — POST /list/add
-    // -------------------------------------------------------------------------
     @Test
-    void createGameList_realDataTest() {
+    void createGameList() {
 
         String json = """
                 {
@@ -96,7 +86,6 @@ class RoutesTest {
                 .then()
                 .statusCode(200);
 
-        // Validér at der nu findes 2 lister
         try (EntityManager em = emf.createEntityManager()) {
             long count = em.createQuery("SELECT COUNT(gl) FROM GameList gl", Long.class)
                     .getSingleResult();
@@ -104,11 +93,9 @@ class RoutesTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // TEST — PUT /list/update/{id}
-    // -------------------------------------------------------------------------
+
     @Test
-    void updateList_realDataTest() {
+    void updateList() {
 
         int id = getDefaultListId();
 
@@ -129,7 +116,6 @@ class RoutesTest {
                 .statusCode(200)
                 .body(containsString("Game list updated"));
 
-        // Validér databasen
         try (EntityManager em = emf.createEntityManager()) {
             GameList gl = em.find(GameList.class, id);
             Assertions.assertEquals("Opdateret Liste", gl.getName());
@@ -137,7 +123,7 @@ class RoutesTest {
     }
 
     @Test
-    void updateList_notFound_test() {
+    void updateList_notFound() {
 
         String json = """
                 { "name" : "Ignored" }
@@ -153,11 +139,9 @@ class RoutesTest {
                 .body("message", equalTo("Game list not found"));
     }
 
-    // -------------------------------------------------------------------------
-    // TEST — DELETE /list/remove/{id}
-    // -------------------------------------------------------------------------
+
     @Test
-    void deleteList_realDataTest() {
+    void deleteList() {
 
         int id = getDefaultListId();
 
@@ -172,17 +156,14 @@ class RoutesTest {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // TEST — GET /list/list/{id}
-    // -------------------------------------------------------------------------
+
     @Test
-    void getGameListById_realDataTest() {
+    void getGameListById() {
 
         int id = getDefaultListId();
 
         given()
                 .when()
-                // ÆNDRING: route er path("list", ...) + get("/list/{listID}")
                 .get("/list/list/" + id)
                 .then()
                 .statusCode(200)
@@ -194,13 +175,11 @@ class RoutesTest {
     void getGameListById_notFound() {
         given()
                 .when()
-                // samme ændring her
                 .get("/list/list/999999")
                 .then()
                 .statusCode(404);
     }
 
-    // Hjælpemetode – find ID på listen "Oprettet Liste"
     private int getDefaultListId() {
         try (EntityManager em = emf.createEntityManager()) {
             return em.createQuery(
