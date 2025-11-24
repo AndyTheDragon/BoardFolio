@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dat.enums.Roles;
+
 
 public class Populator
 {
@@ -49,6 +51,8 @@ public class Populator
 
 
             UserAccount user = new UserAccount("testUser", "test");
+            user.addRole(Roles.USER);
+
             user.getMyCollection().setUser(user);
             user.getMyCollection().setCreatedDate(LocalDateTime.now());
             user.getMyCollection().setName("My collection of games");
