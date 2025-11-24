@@ -1,5 +1,6 @@
 package dat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dat.enums.Roles;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,9 +30,11 @@ public class UserAccount
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
     @ToString.Exclude
-    private GameList myCollection = new GameList("My Collection");
+    @JsonIgnore
+    private GameList myCollection = new GameList();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -41,12 +44,16 @@ public class UserAccount
     {
         this.username = userName;
         this.password = BCrypt.hashpw(userPass, BCrypt.gensalt());
+        this.myCollection = new GameList();
+        this.myCollection.setUser(this);
     }
 
     public UserAccount(String userName, Set<Roles> roleEntityList)
     {
         this.username = userName;
         this.roles = roleEntityList;
+        this.myCollection = new GameList();
+        this.myCollection.setUser(this);
     }
 
     public Set<String> getRolesAsString()
@@ -78,6 +85,21 @@ public class UserAccount
     {
         //roles.remove(Roles.valueOf(roleName.toUpperCase()));
         roles.removeIf(r -> r.toString().equals(roleName));
+    }
+
+    public void addToMyCollection(Game newGame)
+    {
+        if (myCollection == null)
+        {
+            myCollection = new GameList();
+            myCollection.setUser(this);
+        }
+        myCollection.addGame(newGame);
+    }
+
+    public void removeFromMyCollection(Game oldGame)
+    {
+        myCollection.removeGame(oldGame);
     }
 
 

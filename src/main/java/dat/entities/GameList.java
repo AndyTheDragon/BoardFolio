@@ -1,15 +1,22 @@
 package dat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import dat.dto.GameDTO;
+import dat.dto.GameListDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Setter
 @ToString
 public class GameList
 {
@@ -29,10 +36,14 @@ public class GameList
     @ToString.Exclude
     private Set<Game> customList = new HashSet<>();
 
+    private LocalDateTime createdDate;
+    private boolean isPublic;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @Setter
+    @JsonIgnore
     private UserAccount user;
 
     public GameList(String name)
@@ -57,5 +68,22 @@ public class GameList
             return;
         }
         this.customList.remove(game);
+    }
+
+    public GameListDTO toDTO(GameList gameList)
+    {
+        Set<GameDTO> customListDTO = gameList.getCustomList().stream()
+                                             .map(game ->
+                                                          game.toDTO(game))
+                                             .collect(Collectors.toSet());
+
+        GameListDTO gameListDTO = new GameListDTO();
+        gameListDTO.setCustomList(customListDTO);
+        gameListDTO.setName(gameList.getName());
+        gameListDTO.setListID(gameList.getListID());
+        gameListDTO.setCreatedDate(gameList.getCreatedDate());
+        gameListDTO.setPublic(gameList.isPublic());
+
+        return gameListDTO;
     }
 }

@@ -30,7 +30,7 @@ public class BoardGameGeekService
             "BGG_API_KEY"); //TODO setup API Key as a secret system variable
     // The max number of IDs from BGG
     //TODO 457416 is the actual MAX_ID, 100 is for testing!
-    // private static final Long MAX_ID = 457416L;
+    // private static final Long MAX_ID = 170320L;
     private static final Long MAX_ID = 100L;
     // The max number of games per request
     private static final int BATCH_SIZE = 20;
@@ -171,7 +171,7 @@ public class BoardGameGeekService
             List<Long> ids = getValidBGGIds(CSV_PATH);
             List<String> uris = new ArrayList<>();
 
-            for (int i = 0; i < MAX_ID; i += BATCH_SIZE)
+            for (int i = 0; i < ids.size(); i += BATCH_SIZE)
             {
                 List<Long> batch = ids.subList(i, Math.min(i + BATCH_SIZE, ids.size()));
                 StringBuilder sb = new StringBuilder(BGG_URI);
