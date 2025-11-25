@@ -57,4 +57,14 @@ public class GameListDTO
         return entity;
     }
 
+    public GameList toEntityWithoutGames(GameListDTO dto) {
+        GameList entity = new GameList();
+        entity.setListID(dto.getListID());
+        entity.setName(dto.getName());
+        entity.setCreatedDate(dto.getCreatedDate());
+        entity.setPublic(dto.isPublic());
+        entity.setUser(dto.getUser());
+        return entity;
+    }
+
 }
