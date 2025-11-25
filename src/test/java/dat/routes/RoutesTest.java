@@ -14,29 +14,33 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class RoutesTest {
+class RoutesTest
+{
 
     private static final EntityManagerFactory emf = HibernateConfig.getEntityManagerFactoryForTest();
 
     @BeforeAll
-    void startServer() {
+    void startServer()
+    {
 
         Routes routes = new Routes(emf);
 
         ApplicationConfig.getInstance()
-                .initiateServer()
-                .setRoute(routes.getRoutes())
-                .handleException()
-                .setApiExceptionHandling()
-                .checkSecurityRoles()
-                .startServer(7082);
+                         .initiateServer()
+                         .setRoute(routes.getRoutes())
+                         .handleException()
+                         .setApiExceptionHandling()
+                         .checkSecurityRoles()
+                         .startServer(7082);
 
         RestAssured.baseURI = "http://localhost:7082/api";
     }
 
     @BeforeEach
-    void StartFreshData() {
-        try (EntityManager em = emf.createEntityManager()) {
+    void StartFreshData()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
 
             em.getTransaction().begin();
 
@@ -58,7 +62,8 @@ class RoutesTest {
     }
 
     @Test
-    void getGameListsForUser_realDataTest() {
+    void getGameListsForUser_realDataTest()
+    {
         given()
                 .when()
                 .get("/list/user/testUser")
@@ -69,7 +74,8 @@ class RoutesTest {
     }
 
     @Test
-    void createGameList() {
+    void createGameList()
+    {
 
         String json = """
                 {
@@ -86,16 +92,18 @@ class RoutesTest {
                 .then()
                 .statusCode(200);
 
-        try (EntityManager em = emf.createEntityManager()) {
+        try (EntityManager em = emf.createEntityManager())
+        {
             long count = em.createQuery("SELECT COUNT(gl) FROM GameList gl", Long.class)
-                    .getSingleResult();
+                           .getSingleResult();
             Assertions.assertEquals(2, count);
         }
     }
 
 
     @Test
-    void updateList() {
+    void updateList()
+    {
 
         int id = getDefaultListId();
 
@@ -116,14 +124,16 @@ class RoutesTest {
                 .statusCode(200)
                 .body(containsString("Game list updated"));
 
-        try (EntityManager em = emf.createEntityManager()) {
+        try (EntityManager em = emf.createEntityManager())
+        {
             GameList gl = em.find(GameList.class, id);
             Assertions.assertEquals("Opdateret Liste", gl.getName());
         }
     }
 
     @Test
-    void updateList_notFound() {
+    void updateList_notFound()
+    {
 
         String json = """
                 { "name" : "Ignored" }
@@ -141,7 +151,8 @@ class RoutesTest {
 
 
     @Test
-    void deleteList() {
+    void deleteList()
+    {
 
         int id = getDefaultListId();
 
@@ -151,14 +162,16 @@ class RoutesTest {
                 .then()
                 .statusCode(200);
 
-        try (EntityManager em = emf.createEntityManager()) {
+        try (EntityManager em = emf.createEntityManager())
+        {
             Assertions.assertNull(em.find(GameList.class, id));
         }
     }
 
 
     @Test
-    void getGameListById() {
+    void getGameListById()
+    {
 
         int id = getDefaultListId();
 
@@ -172,7 +185,8 @@ class RoutesTest {
     }
 
     @Test
-    void getGameListById_notFound() {
+    void getGameListById_notFound()
+    {
         given()
                 .when()
                 .get("/list/list/999999")
@@ -180,12 +194,14 @@ class RoutesTest {
                 .statusCode(404);
     }
 
-    private int getDefaultListId() {
-        try (EntityManager em = emf.createEntityManager()) {
+    private int getDefaultListId()
+    {
+        try (EntityManager em = emf.createEntityManager())
+        {
             return em.createQuery(
-                            "SELECT gl.listID FROM GameList gl WHERE gl.name='Oprettet Liste'",
-                            Integer.class)
-                    .getSingleResult();
+                             "SELECT gl.listID FROM GameList gl WHERE gl.name='Oprettet Liste'",
+                             Integer.class)
+                     .getSingleResult();
         }
     }
 }

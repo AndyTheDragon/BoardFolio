@@ -23,23 +23,22 @@ public class DataAPIReader
         {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .GET()
-                    .build();
+                                             .uri(new URI(url))
+                                             .GET()
+                                             .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200)
             {
                 return response.body();
-            }
-            else
+            } else
             {
                 logger.error("GET request failed. Status code: {}", response.statusCode());
-                throw new ApiException(response.statusCode(), "GET request failed. Status code: " + response.statusCode());
+                throw new ApiException(response.statusCode(),
+                                       "GET request failed. Status code: " + response.statusCode());
             }
-        }
-        catch (InterruptedException | URISyntaxException  | IOException e)
+        } catch (InterruptedException | URISyntaxException | IOException e)
         {
             logger.error("Error fetching data from API", e);
             throw new RuntimeException("Error fetching data from API", e);

@@ -22,71 +22,83 @@ import java.util.Set;
 
 import static dat.enums.Genre.STRATEGY;
 
-public class GameController {
+public class GameController
+{
 
     private final GenericDAO genericDAO;
     private final BoardgameDAO boardgameDAO;
     private final GameListDAO gameListDAO;
     private final Logger logger = LoggerFactory.getLogger(GameController.class);
 
-    public GameController(EntityManagerFactory emf) {
+    public GameController(EntityManagerFactory emf)
+    {
         this.genericDAO = new GenericDAO(emf);
         this.boardgameDAO = new BoardgameDAO(emf);
         this.gameListDAO = new GameListDAO(emf);
     }
 
-    public void populateBoardGames(@NotNull Context context) {
-        try {
+    public void populateBoardGames(@NotNull Context context)
+    {
+        try
+        {
             Set<Genre> genres = new HashSet<>();
             genres.add(STRATEGY);
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .releaseYear(1995)
-                    .genres(genres)
-                    .build();
+                            .title("Catan")
+                            .description("Trade, build, and settle the island of Catan in this classic board game.")
+                            .minNoOfPlayers(3)
+                            .maxNoOfPlayers(4)
+                            .releaseYear(1995)
+                            .genres(genres)
+                            .build();
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);
-        } catch (DaoException daoException) {
+        } catch (DaoException daoException)
+        {
             logger.error(daoException.getMessage());
             context.status(400).result(daoException.getMessage());
         }
     }
 
-    public void getAllBoardGames(@NotNull Context ctx) {
+    public void getAllBoardGames(@NotNull Context ctx)
+    {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(0);
         int pageSize = ctx.queryParamAsClass("pageSize", Integer.class).getOrDefault(25);
-        try {
+        try
+        {
             List<Game> boardGameList = boardgameDAO.getBoardgames(page, pageSize);
             ctx.status(200).json(boardGameList);
-        } catch (DaoException | IllegalArgumentException exception) {
+        } catch (DaoException | IllegalArgumentException exception)
+        {
             logger.error(exception.getMessage());
             ctx.status(400).result(exception.getMessage());
         }
     }
 
-    public void getGameListsForUser(@NotNull Context ctx) {
+    public void getGameListsForUser(@NotNull Context ctx)
+    {
         String username = ctx.pathParam("username");
 
         List<GameList> gameLists = gameListDAO.getUserWithGameLists(username);
 
-        if (gameLists == null) {
+        if (gameLists == null)
+        {
             gameLists = java.util.Collections.emptyList();
         }
 
         ctx.status(200).json(gameLists);
     }
 
-    public void deleteUserList(@NotNull Context ctx) {
+    public void deleteUserList(@NotNull Context ctx)
+    {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
         gameListDAO.deleteListFromUser(listID);
     }
 
-    public void createGameList(@NotNull Context ctx) {
+    public void createGameList(@NotNull Context ctx)
+    {
         GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
         // sets a timestamp for when list was created
         gameListDTO.setCreatedDate(LocalDateTime.now());
@@ -96,17 +108,21 @@ public class GameController {
         genericDAO.create(gameLists);
     }
 
-    public void updateList(@NotNull Context ctx) {
+    public void updateList(@NotNull Context ctx)
+    {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
         GameList databaseGameList = null;
-        try {
+        try
+        {
             databaseGameList = genericDAO.getById(GameList.class, listID);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
         }
 
-        if (databaseGameList == null) {
+        if (databaseGameList == null)
+        {
             ctx.status(404).json(new ErrorMessage("Game list not found"));
             return;
         }
@@ -122,17 +138,21 @@ public class GameController {
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
 
-    public void getGameListById(@NotNull Context ctx) {
+    public void getGameListById(@NotNull Context ctx)
+    {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
         GameList gl = null;
-        try {
+        try
+        {
             gl = genericDAO.getById(GameList.class, listID);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
         }
 
-        if (gl == null) {
+        if (gl == null)
+        {
             ctx.status(404).json(new ErrorMessage("Game list not found"));
             return;
         }
