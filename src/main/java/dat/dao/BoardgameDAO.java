@@ -9,7 +9,10 @@ import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoardgameDAO
 {
@@ -49,30 +52,55 @@ public class BoardgameDAO
         }
     }
 
-    public List<Game> searchByTitle(String title, String category) throws DaoException
-    {
-        try (EntityManager em = emf.createEntityManager())
-        {
-            int limit = 10;
+    public List<Game> searchByTitle(String title, String category) throws DaoException {
+        try (EntityManager em = emf.createEntityManager()) {
 
-            String jpql = "SELECT g FROM Game g " +
-                    "WHERE LOWER(g.title) LIKE :title " +
-                    "AND (:category IS NULL OR :category MEMBER OF g.genres)";
+            int targetUniqueCount = 10;
+            int fetchSize = 20;
+            int maxFetchLimit = 200;
+            int offset = 0;
 
-            TypedQuery<Game> query = em.createQuery(jpql, Game.class);
-            query.setParameter("title", "%" + title.toLowerCase() + "%");
+            Map<String, Game> uniqueMap = new LinkedHashMap<>();
 
-            if(category != null && !category.isEmpty()) {
-                query.setParameter("category", Genre.valueOf(category.toUpperCase().replace(" ", "_")));
-            } else {
-                query.setParameter("category", null);
+            while (uniqueMap.size() < targetUniqueCount && offset < maxFetchLimit) {
+
+                String jpql = "SELECT g FROM Game g " +
+                        "WHERE LOWER(g.title) LIKE :title " +
+                        "AND (:category IS NULL OR :category MEMBER OF g.genres)";
+
+                TypedQuery<Game> query = em.createQuery(jpql, Game.class);
+                query.setParameter("title", "%" + title.toLowerCase() + "%");
+
+                if (category != null && !category.isEmpty()) {
+                    query.setParameter("category",
+                            Genre.valueOf(category.toUpperCase().replace(" ", "_")));
+                } else {
+                    query.setParameter("category", null);
+                }
+
+                query.setFirstResult(offset);
+                query.setMaxResults(fetchSize);
+
+                List<Game> batch = query.getResultList();
+                if (batch.isEmpty()) {
+                    break;
+                }
+
+                for (Game g : batch) {
+                    String key = g.getTitle().toLowerCase() + "|" + g.getReleaseYear();
+                    uniqueMap.putIfAbsent(key, g);
+                }
+
+                offset += fetchSize;
             }
 
-            query.setMaxResults(limit);
-            return query.getResultList();
-        } catch (Exception e) {
-            throw new DaoException("Error searching objects from db", e);
-        }
+            return new ArrayList<>(uniqueMap.values()).subList(
+                    0, Math.min(targetUniqueCount, uniqueMap.size())
+            );
 
+        } catch (Exception e) {
+            throw new DaoException("Error searching games from db", e);
+        }
     }
+
 }
