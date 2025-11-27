@@ -144,15 +144,12 @@ public class GameController
     }
 
     public void searchByTitle(@NotNull Context ctx) {
-        // Get query parameters
         String title = ctx.queryParam("title");
         String category = ctx.queryParam("genres"); // optional
 
         try {
-            // Call DAO method that handles optional category
             List<Game> results = boardgameDAO.searchByTitle(title, category);
 
-            // Return results as JSON
             ctx.status(200).json(results);
         } catch (DaoException daoException) {
             logger.error(daoException.getMessage(), daoException);
