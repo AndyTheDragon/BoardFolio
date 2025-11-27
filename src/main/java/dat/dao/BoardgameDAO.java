@@ -1,9 +1,11 @@
 package dat.dao;
 
 import dat.entities.Game;
+import dat.enums.Genre;
 import dat.exceptions.DaoException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,24 +49,30 @@ public class BoardgameDAO
         }
     }
 
-    public List<Game> searchByTitle(String title) throws DaoException
+    public List<Game> searchByTitle(String title, String category) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())
         {
             int limit = 10;
-            List<Game> entities = em.createQuery("SELECT g FROM Game g WHERE LOWER(g.title) LIKE :title", Game.class)
-                                    .setParameter("title", "%" + title.toLowerCase() + "%")
-                                    .setMaxResults(limit)
-                                    .getResultList();
-            if (entities.isEmpty())
-            {
-                logger.debug("No entities found in db matching title: {}", title);
+
+            String jpql = "SELECT g FROM Game g " +
+                    "WHERE LOWER(g.title) LIKE :title " +
+                    "AND (:category IS NULL OR :category MEMBER OF g.genres)";
+
+            TypedQuery<Game> query = em.createQuery(jpql, Game.class);
+            query.setParameter("title", "%" + title.toLowerCase() + "%");
+
+            if(category != null && !category.isEmpty()) {
+                query.setParameter("category", Genre.valueOf(category.toUpperCase().replace(" ", "_")));
+            } else {
+                query.setParameter("category", null);
             }
-            return entities;
-        } catch (Exception e)
-        {
-            logger.error("Error searching objects from db", e);
+
+            query.setMaxResults(limit);
+            return query.getResultList();
+        } catch (Exception e) {
             throw new DaoException("Error searching objects from db", e);
         }
+
     }
 }

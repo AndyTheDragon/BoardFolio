@@ -143,29 +143,19 @@ public class GameController
         ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
     }
 
-    public void searchByTitle(@NotNull Context ctx)
-    {
+    public void searchByTitle(@NotNull Context ctx) {
+        // Get query parameters
         String title = ctx.queryParam("title");
-        String category = ctx.queryParam("genres");
+        String category = ctx.queryParam("genres"); // optional
 
-        List<Game> results = new ArrayList<>();
+        try {
+            // Call DAO method that handles optional category
+            List<Game> results = boardgameDAO.searchByTitle(title, category);
 
-        try
-        {
-            results = boardgameDAO.searchByTitle(title);
-            if (category != null)
-            {
-                // check if category exists in results
-                results = results.stream()
-                    .filter(game -> game.getGenres()
-                        .stream()
-                        .allMatch(genre -> genre.name().equalsIgnoreCase(category)))
-                    .collect(Collectors.toList());
-            }
-                ctx.status(200).json(results);
-        }catch (DaoException daoException)
-        {
-            logger.error(daoException.getMessage());
+            // Return results as JSON
+            ctx.status(200).json(results);
+        } catch (DaoException daoException) {
+            logger.error(daoException.getMessage(), daoException);
             ctx.status(400).result(daoException.getMessage());
         }
     }
