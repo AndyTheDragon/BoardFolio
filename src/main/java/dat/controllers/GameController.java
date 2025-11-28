@@ -143,12 +143,12 @@ public class GameController
         ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
     }
 
-    public void searchByTitle(@NotNull Context ctx) {
+    public void searchGame(@NotNull Context ctx) {
         String title = ctx.queryParam("title");
         String category = ctx.queryParam("genres"); // optional
 
         try {
-            List<Game> results = boardgameDAO.searchByTitle(title, category);
+            List<Game> results = boardgameDAO.searchGame(title, category);
 
             ctx.status(200).json(results);
         } catch (DaoException daoException) {

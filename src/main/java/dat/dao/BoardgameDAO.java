@@ -49,7 +49,7 @@ public class BoardgameDAO
         }
     }
 
-    public List<Game> searchByTitle(String title, String category) throws DaoException
+    public List<Game> searchGame(String title, String category) throws DaoException
     {
         try (EntityManager em = emf.createEntityManager())
         {
