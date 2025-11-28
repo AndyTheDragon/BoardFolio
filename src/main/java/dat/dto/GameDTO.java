@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @ToString
 public class GameDTO
 {
-    @JsonProperty("bgg_API_ID")
     private Long BGG_API_ID;
     private String title;
     private String image;
