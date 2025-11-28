@@ -144,7 +144,7 @@ public class GameController
     }
 
     public void searchGame(@NotNull Context ctx) {
-        String title = ctx.queryParam("title");
+        String title = ctx.queryParam("title"); //mandatory
         String category = ctx.queryParam("genres"); // optional
 
         try {
