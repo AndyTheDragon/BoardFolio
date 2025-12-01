@@ -36,8 +36,14 @@ public class Game
     @Enumerated(EnumType.STRING)
     private Set<Genre> genres = new HashSet<>();
 
-    public Game(String title, String description, int minNoOfPlayers, int maxNoOfPlayers, int releaseYear,
-                String imageURL, String thumbnailURL, Set<Genre> genres)
+    public Game(String title,
+                String description,
+                int minNoOfPlayers,
+                int maxNoOfPlayers,
+                int releaseYear,
+                String imageURL,
+                String thumbnailURL,
+                Set<Genre> genres)
     {
         this.title = title;
         this.description = description;
@@ -51,9 +57,7 @@ public class Game
 
     public GameDTO toDTO(Game game)
     {
-        Set<String> genreStrings = game.getGenres().stream()
-                                       .map(Enum::name)
-                                       .map(name -> name.replaceAll("_", " "))
+        Set<String> genreStrings = game.getGenres().stream().map(Enum::name).map(name -> name.replaceAll("_", " "))
                                        .map(name -> name.substring(0, 1).toUpperCase() + name.substring(1)
                                                                                              .toLowerCase())
                                        .collect(Collectors.toSet());
