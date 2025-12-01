@@ -42,8 +42,8 @@ public class GameListDTO
         if (dto.getCustomList() != null)
         {
             customList = dto.getCustomList().stream()
-                    .map(g -> g.toEntity(g))
-                    .collect(Collectors.toSet());
+                            .map(g -> g.toEntity(g))
+                            .collect(Collectors.toSet());
         }
 
         GameList entity = new GameList();

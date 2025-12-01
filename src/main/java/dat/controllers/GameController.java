@@ -7,7 +7,6 @@ import dat.dto.ErrorMessage;
 import dat.dto.GameListDTO;
 import dat.entities.Game;
 import dat.entities.GameList;
-import dat.entities.UserAccount;
 import dat.enums.Genre;
 import dat.exceptions.DaoException;
 import io.javalin.http.Context;
@@ -17,11 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static dat.enums.Genre.STRATEGY;
 
@@ -48,13 +45,13 @@ public class GameController
             genres.add(STRATEGY);
 
             Game game = Game.builder()
-                    .title("Catan")
-                    .description("Trade, build, and settle the island of Catan in this classic board game.")
-                    .minNoOfPlayers(3)
-                    .maxNoOfPlayers(4)
-                    .releaseYear(1995)
-                    .genres(genres)
-                    .build();
+                            .title("Catan")
+                            .description("Trade, build, and settle the island of Catan in this classic board game.")
+                            .minNoOfPlayers(3)
+                            .maxNoOfPlayers(4)
+                            .releaseYear(1995)
+                            .genres(genres)
+                            .build();
 
             Game saved = genericDAO.create(game);
             context.status(200).json(saved);
@@ -86,7 +83,12 @@ public class GameController
 
         List<GameList> gameLists = gameListDAO.getUserWithGameLists(username);
 
-        ctx.json(gameLists);
+        if (gameLists == null)
+        {
+            gameLists = java.util.Collections.emptyList();
+        }
+
+        ctx.status(200).json(gameLists);
     }
 
     public void deleteUserList(@NotNull Context ctx)
@@ -110,7 +112,14 @@ public class GameController
     {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
 
-        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
+        GameList databaseGameList = null;
+        try
+        {
+            databaseGameList = genericDAO.getById(GameList.class, listID);
+        } catch (Exception e)
+        {
+            logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
+        }
 
         if (databaseGameList == null)
         {
@@ -132,21 +141,33 @@ public class GameController
         databaseGameList.setPublic(gameListToUpdate.isPublic());
 
         genericDAO.update(databaseGameList);
-        //TODO: response has to be valid json like this
         ctx.status(200).json("{\"message\":\"Game list updated\"}");
     }
 
     public void getGameListById(@NotNull Context ctx)
     {
         int listID = Integer.parseInt(ctx.pathParam("listID"));
-        GameList databaseGameList = genericDAO.getById(GameList.class, listID);
 
-        if (databaseGameList == null)
+        GameList gl = null;
+        try
+        {
+            gl = genericDAO.getById(GameList.class, listID);
+        } catch (Exception e)
+        {
+            logger.error("Error fetching GameList with id {}: {}", listID, e.getMessage());
+        }
+
+        if (gl == null)
         {
             ctx.status(404).json(new ErrorMessage("Game list not found"));
             return;
         }
-        ctx.status(200).json(databaseGameList.toDTO(databaseGameList));
+
+        gl.getCustomList().size();
+
+        GameListDTO dto = gl.toDTO(gl);
+
+        ctx.status(200).json(dto);
     }
 
 }
