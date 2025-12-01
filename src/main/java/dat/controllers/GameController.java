@@ -128,6 +128,12 @@ public class GameController
         }
 
         GameListDTO gameListDTO = ctx.bodyAsClass(GameListDTO.class);
+
+        if (gameListDTO == null) {
+            ctx.status(400).result("Invalid request body");
+            return;
+        }
+
         GameList gameListToUpdate = gameListDTO.toEntity(gameListDTO);
 
         databaseGameList.setName(gameListToUpdate.getName());

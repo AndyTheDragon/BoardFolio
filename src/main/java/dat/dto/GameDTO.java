@@ -1,5 +1,6 @@
 package dat.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dat.entities.Game;
 import dat.enums.Genre;
 import lombok.*;
@@ -30,25 +31,26 @@ public class GameDTO
     public Game toEntity(GameDTO gameDTO)
     {
         Set<Genre> genreEnums = gameDTO.getGenres().stream()
-                                       .map(genre -> genre.trim()
-                                                          .replaceAll("\\s+", "_")
-                                                          .replaceAll("'", "")
-                                                          .toUpperCase())
-                                       .map(Genre::valueOf)
-                                       .collect(Collectors.toSet());
+                .map(genre -> genre.trim()
+                        .replaceAll("\\s+", "_")
+                        .replaceAll("'", "")
+                        .toUpperCase())
+                .map(Genre::valueOf)
+                .collect(Collectors.toSet());
 
 
         Game game = Game.builder()
-                        .title(gameDTO.getTitle())
-                        .description(gameDTO.getDescription())
-                        .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
-                        .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
-                        .minAge(gameDTO.getMinAge())
-                        .releaseYear(gameDTO.getReleaseYear())
-                        .genres(genreEnums)
-                        .imageURL(gameDTO.getImage())
-                        .thumbnailURL(gameDTO.getThumbnail())
-                        .build();
+                .gameId(gameDTO.getBGG_API_ID())
+                .title(gameDTO.getTitle())
+                .description(gameDTO.getDescription().trim())
+                .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
+                .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
+                .minAge(gameDTO.getMinAge())
+                .releaseYear(gameDTO.getReleaseYear())
+                .genres(genreEnums)
+                .imageURL(gameDTO.getImage().trim())
+                .thumbnailURL(gameDTO.getThumbnail().trim())
+                .build();
 
         return game;
     }
