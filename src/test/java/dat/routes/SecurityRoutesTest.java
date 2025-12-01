@@ -42,8 +42,8 @@ class SecurityRoutesTest
                 .handleException()
                 .setApiExceptionHandling()
                 .checkSecurityRoles()
-                .startServer(7079);
-        RestAssured.baseURI = "http://localhost:7079/api";
+                .startServer(7078);
+        RestAssured.baseURI = "http://localhost:7078/api";
     }
 
     @BeforeEach

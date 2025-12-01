@@ -10,8 +10,6 @@ import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
 
-import javax.management.relation.Role;
-
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes
@@ -33,6 +31,7 @@ public class Routes
     {
         return () -> {
             path("list", gameListRoutes());
+            path("boardgames", boardgameRoutes());
             path("auth", authRoutes());
             path("populate", populateRoutes());
         };
@@ -42,13 +41,26 @@ public class Routes
     {
         return () -> {
             //TODO Update roles for routes
-            post("/add", gameController::createGameList, Roles.ANYONE);
-            put("/update/{listID}", gameController::updateList, Roles.ANYONE);
-            delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE);
-            get("/list/{listID}", gameController::getGameListById, Roles.ANYONE);
-            get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE);
+            post("/add", gameController::createGameList, Roles.ANYONE, Roles.USER, Roles.ADMIN);
+            put("/update/{listID}", gameController::updateList, Roles.ANYONE, Roles.USER, Roles.ADMIN);
+            delete("/remove/{listID}", gameController::deleteUserList, Roles.ANYONE, Roles.USER, Roles.ADMIN);
+            get("/list/{listID}", gameController::getGameListById, Roles.ANYONE, Roles.USER, Roles.ADMIN);
+            get("/user/{username}", gameController::getGameListsForUser, Roles.ANYONE, Roles.USER, Roles.ADMIN);
         };
     }
+
+private EndpointGroup boardgameRoutes()
+{
+    return () -> {
+        get(gameController::getAllBoardGames);
+        get("/populate", gameController::populateBoardGames);
+            /*get("/{id}", boardgameController::getBoardGameById);
+            post(boardgameController::createBoardGame);
+            put("/{id}", boardgameController::updateBoardGame);
+            delete("/{id}", boardgameController::deleteBoardGame);
+            post("/populate", boardgameController::populateBoardGames);*/
+    };
+}
 
     private EndpointGroup authRoutes()
     {
