@@ -21,7 +21,8 @@ public class TestPopulator
 
         EntityManager em = HibernateConfig.getEntityManagerFactory().createEntityManager();
 
-        try {
+        try
+        {
             em.getTransaction().begin();
 
             UserAccount user1 = new UserAccount("testuser", "password123");
@@ -61,12 +62,15 @@ public class TestPopulator
             em.persist(game2);
 
             em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
+        } catch (Exception e)
+        {
+            if (em.getTransaction().isActive())
+            {
                 em.getTransaction().rollback();
             }
             e.printStackTrace();
-        } finally {
+        } finally
+        {
             em.close();
         }
 
