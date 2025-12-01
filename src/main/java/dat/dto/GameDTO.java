@@ -42,14 +42,14 @@ public class GameDTO
         Game game = Game.builder()
                 .gameId(gameDTO.getBGG_API_ID())
                 .title(gameDTO.getTitle())
-                .description(gameDTO.getDescription())
+                .description(gameDTO.getDescription().trim())
                 .minNoOfPlayers(gameDTO.getMinNoOfPlayers())
                 .maxNoOfPlayers(gameDTO.getMaxNoOfPlayers())
                 .minAge(gameDTO.getMinAge())
                 .releaseYear(gameDTO.getReleaseYear())
                 .genres(genreEnums)
-                .imageURL(gameDTO.getImage())
-                .thumbnailURL(gameDTO.getThumbnail())
+                .imageURL(gameDTO.getImage().trim())
+                .thumbnailURL(gameDTO.getThumbnail().trim())
                 .build();
 
         return game;
