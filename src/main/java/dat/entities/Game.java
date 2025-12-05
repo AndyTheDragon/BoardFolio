@@ -4,6 +4,7 @@ import dat.dto.GameDTO;
 import dat.enums.Genre;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @ToString
+@DynamicUpdate
 public class Game
 {
     @Id
@@ -57,9 +59,7 @@ public class Game
 
     public GameDTO toDTO(Game game)
     {
-        Set<String> genreStrings = game.getGenres().stream()
-                                       .map(Enum::name)
-                                       .map(name -> name.replaceAll("_", " "))
+        Set<String> genreStrings = game.getGenres().stream().map(Enum::name).map(name -> name.replaceAll("_", " "))
                                        .map(name -> name.substring(0, 1).toUpperCase() + name.substring(1)
                                                                                              .toLowerCase())
                                        .collect(Collectors.toSet());

@@ -3,10 +3,7 @@ package dat.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dat.enums.Roles;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
@@ -30,13 +27,21 @@ public class UserAccount
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter
+    @OneToOne(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @JsonIgnore
     private GameList myCollection = new GameList();
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @ToString.Exclude
     private List<GameList> gameLists = new ArrayList<>();
 
@@ -61,12 +66,10 @@ public class UserAccount
         return roles.stream().map(Roles::toString).collect(Collectors.toSet());
     }
 
-
     public boolean verifyPassword(String pw)
     {
         return BCrypt.checkpw(pw, this.password);
     }
-
 
     public void addRole(Roles role)
     {
@@ -83,7 +86,6 @@ public class UserAccount
 
     public void removeRole(String roleName)
     {
-        //roles.remove(Roles.valueOf(roleName.toUpperCase()));
         roles.removeIf(r -> r.toString().equals(roleName));
     }
 
@@ -97,12 +99,10 @@ public class UserAccount
         myCollection.addGame(newGame);
     }
 
-
     public void removeFromMyCollection(Game oldGame)
     {
         myCollection.removeGame(oldGame);
     }
-
 
     public void addList(GameList list)
     {

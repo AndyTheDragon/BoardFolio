@@ -26,7 +26,8 @@ public class SecurityDAO extends GenericDAO implements ISecurityDAO
     {
 
         UserAccount userAccount = super.getById(UserAccount.class, username); //Throws DaoException if user not found
-        if (userAccount == null) {
+        if (userAccount == null)
+        {
             // Her signalerer du “user ikke fundet”
             throw new DaoException("User with username '" + username + "' not found");
         }

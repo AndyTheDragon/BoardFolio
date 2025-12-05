@@ -1,6 +1,7 @@
 package dat.enums;
 
-public enum Languages {
+public enum Languages
+{
     ENGLISH,
     DANISH,
     GERMAN,

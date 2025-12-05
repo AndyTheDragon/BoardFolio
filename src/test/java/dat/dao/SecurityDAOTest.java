@@ -29,7 +29,9 @@ class SecurityDAOTest
         {
             em.getTransaction().begin();
             // Clean up existing data
-            em.createQuery("DELETE FROM UserAccount").executeUpdate();
+            em.createNativeQuery(
+                    "TRUNCATE TABLE custom_list, game_genres, useraccount_roles, gamelist, game, useraccount RESTART IDENTITY CASCADE"
+            ).executeUpdate();
 
             // Create test user with user role
             testUserAccount = new UserAccount("testuser", "password123");
@@ -160,7 +162,7 @@ class SecurityDAOTest
         DaoException exception = assertThrows(DaoException.class,
                                               () -> securityDAO.addRoleToUser(nonExistentUsername, Roles.USER));
 
-        assertTrue(exception.getMessage().contains("Error reading object from db"));
+        assertTrue(exception.getMessage().contains("Error adding role to user"));
     }
 
 
@@ -203,7 +205,7 @@ class SecurityDAOTest
         DaoException exception = assertThrows(DaoException.class,
                                               () -> securityDAO.removeRoleFromUser(nonExistentUsername, Roles.USER));
 
-        assertTrue(exception.getMessage().contains("Error reading object from db"));
+        assertTrue(exception.getMessage().contains("Error removing role from user"));
     }
 
 }

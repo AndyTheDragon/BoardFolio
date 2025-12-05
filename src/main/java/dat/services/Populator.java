@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dat.enums.Roles;
+
 
 public class Populator
 {
@@ -43,20 +45,26 @@ public class Populator
             for (GameDTO dto : gameDTOS)
             {
                 Game game = dto.toEntity(dto);
-                genericDAO.create(game);
-                gameMap.put(dto.getBGG_API_ID(), game);
+                Game game1 = genericDAO.create(game);
+                gameMap.put(game.getGameId(), game1);
             }
 
 
             UserAccount user = new UserAccount("testUser", "test");
+            user.addRole(Roles.USER);
+
             user.getMyCollection().setUser(user);
             user.getMyCollection().setCreatedDate(LocalDateTime.now());
             user.getMyCollection().setName("My collection of games");
 
+            Game game1 = gameMap.get(1L);
+            Game game2 = gameMap.get(2L);
+            Game game3 = gameMap.get(3L);
 
-            user.addToMyCollection(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
-            user.addToMyCollection(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
-            user.addToMyCollection(gameMap.get(gameDTOS.get(5).getBGG_API_ID()));
+            user.addToMyCollection(game1);
+            user.addToMyCollection(game2);
+            user.addToMyCollection(game3);
+
 
             genericDAO.create(user);
 
@@ -64,9 +72,9 @@ public class Populator
             customList.setCreatedDate(LocalDateTime.now());
             user.addList(customList);
 
-            customList.addGame(gameMap.get(gameDTOS.get(0).getBGG_API_ID()));
-            customList.addGame(gameMap.get(gameDTOS.get(1).getBGG_API_ID()));
-            customList.addGame(gameMap.get(gameDTOS.get(2).getBGG_API_ID()));
+            customList.addGame(gameMap.get(1L));
+            customList.addGame(gameMap.get(3L));
+            customList.addGame(gameMap.get(4L));
 
             genericDAO.create(customList);
 
